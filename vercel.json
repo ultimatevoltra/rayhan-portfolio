@@ -2,9 +2,10 @@
   "version": 2,
   "outputDirectory": "site/shishirr.pro.bd",
   "routes": [
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/(.*\\.html)", "dest": "/$1" },
-    { "src": "/(.*)", "dest": "/$1" }
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
   ],
   "headers": [
     {
