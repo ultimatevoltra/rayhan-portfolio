@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced Calculator </title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      font-size: 16px; /* Base font size */
+    }
+    body {
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Changed font */
+      background: var(--bg-gradient); /* Use gradient */
+      color: var(--text-color);
+      transition: background 0.5s ease, color 0.3s ease; /* Slower background transition */
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      flex-direction: column;
+    }
+
+    :root {
+      --bg-color-start: #e8eaf6; /* Lighter lavender */
+      --bg-color-end: #f0f0f3; /* Existing light */
+      --bg-gradient: linear-gradient(145deg, var(--bg-color-start), var(--bg-color-end));
+      --text-color: #333; /* Slightly darker text */
+      --btn-bg: #f3f4f7; /* Slightly adjusted button bg */
+      --btn-hover-bg: #e8eaf6; /* Match gradient start */
+      --btn-shadow: rgba(174, 174, 192, 0.4); /* Softer shadow */
+      --btn-shadow-inset: rgba(174, 174, 192, 0.2);
+      --btn-shadow-light: #ffffff;
+      --primary-color: #673ab7; /* Deep purple */
+      --primary-color-light: #9575cd; /* Lighter purple */
+      --accent-color: #ff4081; /* Pink */
+      --accent-color-dark: #f50057;
+      --display-bg: #e8e8e8; /* Slightly different display bg */
+      --display-text: #222;
+      --modal-bg: #f8f9fa; /* Very light modal bg */
+      --modal-shadow: rgba(0,0,0,0.1);
+      --modal-shadow-light: rgba(255,255,255,0.7);
+      --history-item-hover: #e9e9ed;
+      --scrollbar-thumb: #b0b0c0; /* Softer scrollbar */
+      --scrollbar-track: #f1f1f1;
+      --preview-text-color: var(--primary-color-light);
+      --icon-color: var(--primary-color);
+      --error-color: #d32f2f;
+      --warning-color: #f57c00;
+      --equal-btn-bg: var(--primary-color);
+      --equal-btn-hover: #512da8; /* Darker purple */
+      --equal-btn-text: #fff;
+      --equal-btn-shadow: rgba(103, 58, 183, 0.4);
+      --equal-btn-shadow-light: rgba(149, 117, 205, 0.6);
+
+    }
+    [data-theme="dark"] {
+      --bg-color-start: #1f1f2e; /* Dark blue/purple */
+      --bg-color-end: #121212; /* Existing dark */
+      --bg-gradient: linear-gradient(145deg, var(--bg-color-start), var(--bg-color-end));
+      --text-color: #e0e0e0; /* Lighter text */
+      --btn-bg: #282830; /* Darker button bg */
+      --btn-hover-bg: #353540;
+      --btn-shadow: rgba(0,0,0,0.5);
+      --btn-shadow-inset: rgba(0,0,0,0.3);
+      --btn-shadow-light: #3a3a44; /* Adjusted light shadow */
+      --primary-color: #bb86fc; /* Lighter purple for dark mode */
+      --primary-color-light: #d0b3ff;
+      --accent-color: #f06292; /* Lighter pink */
+      --accent-color-dark: #ec407a;
+      --display-bg: #2c2c34; /* Darker display bg */
+      --display-text: #eee;
+      --modal-bg: #212129; /* Darker modal */
+      --modal-shadow: rgba(0,0,0,0.5);
+      --modal-shadow-light: #33333d;
+      --history-item-hover: #353540;
+      --scrollbar-thumb: #555;
+      --scrollbar-track: #282830;
+      --preview-text-color: var(--primary-color-light);
+      --icon-color: var(--primary-color);
+      --error-color: #ef9a9a; /* Lighter red */
+      --warning-color: #ffcc80; /* Lighter orange */
+      --equal-btn-bg: var(--primary-color);
+      --equal-btn-hover: #a367e7;
+      --equal-btn-text: #121212; /* Dark text on light purple */
+      --equal-btn-shadow: rgba(187, 134, 252, 0.4);
+      --equal-btn-shadow-light: rgba(208, 179, 255, 0.3);
+    }
+
+    /* Container */
+    .calculator {
+      background: var(--btn-bg); /* Solid background for calculator itself */
+      border-radius: 25px; /* Slightly more rounded */
+      box-shadow:
+        10px 10px 20px var(--btn-shadow), /* Deeper shadow */
+        -10px -10px 20px var(--btn-shadow-light);
+      width: 360px;
+      max-width: 100%;
+      padding: 25px; /* More padding */
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      transition: box-shadow 0.4s ease, background-color 0.4s ease;
+      border: 1px solid rgba(0,0,0,0.02); /* Subtle border */
+    }
+    [data-theme="dark"] .calculator {
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+
+    /* Display Container & Styles */
+    .display-container {
+        position: relative;
+        margin-bottom: 25px; /* Increased space */
+        background-color: var(--display-bg);
+        border-radius: 15px;
+        box-shadow: inset 5px 5px 8px var(--btn-shadow-inset), /* Adjusted inset shadow */
+                    inset -5px -5px 8px var(--btn-shadow-light);
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        padding: 15px 20px; /* Padding applied here */
+    }
+
+    .display {
+        background-color: transparent;
+        border-radius: 0;
+        box-shadow: none;
+        margin-bottom: 5px; /* Space between display and preview */
+        padding: 0; /* Padding handled by container */
+        min-height: 55px; /* Slightly taller */
+        color: var(--display-text);
+        font-size: 2.4rem; /* Slightly larger */
+        font-weight: 600; /* Less bold */
+        text-align: right;
+        letter-spacing: 1px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-all;
+        line-height: 1.3;
+        transition: color 0.3s ease;
+        width: 100%;
+    }
+
+    .live-preview {
+        min-height: 25px;
+        font-size: 1rem;
+        color: var(--preview-text-color);
+        opacity: 0.9; /* Less faded */
+        text-align: right;
+        padding: 0; /* Padding handled by container */
+        font-weight: 500; /* Medium weight */
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        transition: color 0.3s ease, opacity 0.3s ease;
+        letter-spacing: 0.5px;
+        width: 100%;
+    }
+
+    /* Buttons grid */
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px; /* Increased gap */
+    }
+
+    /* Button styles */
+    button {
+      background-color: var(--btn-bg);
+      border: none;
+      border-radius: 15px; /* Keep consistent radius */
+      box-shadow:
+        5px 5px 10px var(--btn-shadow), /* Adjusted shadow */
+        -5px -5px 10px var(--btn-shadow-light);
+      font-size: 1.4rem; /* Slightly larger font */
+      font-weight: 500; /* Medium weight */
+      color: var(--text-color);
+      padding: 18px 0; /* More padding */
+      cursor: pointer;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.1s ease; /* Added transform */
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative; /* For potential future pseudo-elements */
+    }
+    button:hover {
+      background-color: var(--btn-hover-bg);
+      transform: translateY(-2px); /* Subtle lift on hover */
+       box-shadow:
+        7px 7px 12px var(--btn-shadow), /* Enhance shadow on hover */
+        -7px -7px 12px var(--btn-shadow-light);
+    }
+    button:active, button.active-keypress { /* Style for both click and keypress */
+      box-shadow:
+        inset 4px 4px 6px var(--btn-shadow-inset),
+        inset -4px -4px 6px var(--btn-shadow-light);
+      font-size: 1.35rem; /* Slightly less shrink */
+      transform: translateY(1px); /* Simulate press down */
+      background-color: var(--btn-hover-bg); /* Keep hover bg on active */
+    }
+
+    /* Special buttons */
+    .operator, .parenthesis {
+      color: var(--accent-color);
+      font-weight: 600; /* Bold operators */
+    }
+    .equal {
+      background-color: var(--equal-btn-bg);
+      color: var(--equal-btn-text);
+      grid-column: span 4;
+      font-weight: 700; /* Bold equals */
+      font-size: 1.6rem; /* Larger equals */
+      box-shadow:
+        6px 6px 12px var(--equal-btn-shadow),
+        -6px -6px 12px var(--equal-btn-shadow-light);
+    }
+    .equal:hover {
+      background-color: var(--equal-btn-hover);
+      transform: translateY(-2px); /* Consistent hover lift */
+      box-shadow:
+        8px 8px 15px var(--equal-btn-shadow), /* Enhance shadow on hover */
+        -8px -8px 15px var(--equal-btn-shadow-light);
+    }
+     .equal:active, .equal.active-keypress {
+        background-color: var(--equal-btn-hover);
+        box-shadow:
+            inset 4px 4px 8px rgba(0,0,0,0.2), /* Darker inset for colored button */
+            inset -4px -4px 8px rgba(255,255,255,0.1);
+        transform: translateY(1px);
+     }
+     [data-theme="dark"] .equal:active, [data-theme="dark"] .equal.active-keypress {
+         box-shadow:
+            inset 4px 4px 8px rgba(0,0,0,0.4),
+            inset -4px -4px 8px rgba(255,255,255,0.1);
+     }
+
+    .clear {
+      color: var(--error-color);
+      font-weight: 600;
+    }
+    .backspace {
+      color: var(--warning-color);
+      font-weight: 600;
+    }
+    /* SVG Icons in Buttons */
+    button svg {
+        width: 1.4em; /* Relative size to font */
+        height: 1.4em;
+        vertical-align: middle;
+        fill: currentColor; /* Inherit button color */
+        transition: transform 0.2s ease;
+    }
+    .backspace svg {
+        width: 1.6em;
+        height: 1.6em;
+    }
+
+
+    /* Header */
+    header {
+      width: 360px; /* Match calculator width */
+      max-width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px; /* Increased margin */
+      padding: 0 10px;
+    }
+    header h1 {
+      font-size: 1.6rem; /* Slightly larger title */
+      margin: 0;
+      user-select: none;
+      font-weight: 600;
+      color: var(--primary-color); /* Use primary color for title */
+       text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    [data-theme="dark"] header h1 {
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    }
+    .header-buttons {
+      display: flex;
+      gap: 15px; /* Increased gap */
+    }
+    #settings-btn, #history-btn {
+      background: var(--btn-bg); /* Give buttons a background */
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--icon-color); /* Use icon color */
+      transition: all 0.3s ease;
+      padding: 8px; /* Padding for the button */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px; /* Rounded corners */
+      width: 40px; /* Fixed size */
+      height: 40px;
+      box-shadow: 3px 3px 6px var(--btn-shadow), -3px -3px 6px var(--btn-shadow-light);
+    }
+    #settings-btn:hover, #history-btn:hover {
+      color: var(--accent-color);
+      transform: translateY(-2px) scale(1.05); /* Lift and scale */
+      box-shadow: 5px 5px 8px var(--btn-shadow), -5px -5px 8px var(--btn-shadow-light);
+    }
+     #settings-btn:active, #history-btn:active {
+         transform: translateY(0px) scale(0.95); /* Press down */
+         box-shadow: inset 2px 2px 4px var(--btn-shadow-inset), inset -2px -2px 4px var(--btn-shadow-light);
+         background-color: var(--btn-hover-bg);
+     }
+     #settings-btn svg, #history-btn svg {
+        width: 1.2em;
+        height: 1.2em;
+     }
+
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.65); /* Darker backdrop */
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+      backdrop-filter: blur(5px); /* Stronger blur */
+      opacity: 0; /* Start hidden for animation */
+      transition: opacity 0.3s ease; /* Fade-in transition */
+    }
+    .modal.active {
+      display: flex;
+      opacity: 1;
+    }
+    .modal-content {
+      background: var(--modal-bg);
+      color: var(--text-color);
+      border-radius: 20px; /* More rounded */
+      max-width: 480px; /* Wider modal */
+      width: 100%;
+      padding: 30px; /* More padding */
+      box-shadow:
+        0 15px 30px var(--modal-shadow), /* Stronger modal shadow */
+        0 0 0 1px rgba(0,0,0,0.05); /* Subtle border */
+      position: relative;
+      user-select: text;
+      max-height: 85vh; /* Limit height slightly more */
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+      transform: scale(0.95); /* Start slightly small */
+      opacity: 0; /* Start transparent */
+    }
+    .modal.active .modal-content {
+       transform: scale(1); /* Scale up */
+       opacity: 1; /* Fade in */
+    }
+    [data-theme="dark"] .modal-content {
+       box-shadow: 0 15px 30px var(--modal-shadow), 0 0 0 1px rgba(255,255,255,0.1);
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      margin-bottom: 25px; /* Increased margin */
+      font-weight: 700;
+      font-size: 2rem; /* Larger heading */
+      text-align: center;
+      color: var(--primary-color);
+    }
+    .modal-content label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 1.1rem; /* Slightly larger label */
+    }
+    /* Custom Select Styling */
+    .select-wrapper {
+        position: relative;
+        margin-bottom: 25px;
+    }
+    .select-wrapper::after { /* Custom arrow */
+        content: '▼';
+        font-size: 0.8rem;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+        pointer-events: none; /* Allows clicking the select */
+        transition: color 0.3s ease;
+    }
+    .modal-content select {
+      width: 100%;
+      padding: 12px 40px 12px 15px; /* Adjust padding for arrow */
+      font-size: 1rem;
+      border-radius: 10px; /* Rounded select */
+      border: 1px solid rgba(0,0,0,0.1);
+      background-color: var(--btn-bg);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+      appearance: none; /* Remove default appearance */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+    }
+     [data-theme="dark"] .modal-content select {
+        border: 1px solid rgba(255,255,255,0.15);
+     }
+     .modal-content select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-color-light);
+     }
+
+
+    .modal-content button.close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 2rem; /* Larger close button */
+      cursor: pointer;
+      color: var(--primary-color);
+      font-weight: 400; /* Lighter weight */
+      transition: color 0.3s ease, transform 0.2s ease;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      border-radius: 50%; /* Circular hover */
+    }
+    .modal-content button.close-btn:hover {
+      color: var(--accent-color);
+      transform: scale(1.1) rotate(90deg); /* Rotate on hover */
+      background-color: rgba(0,0,0,0.05);
+    }
+     [data-theme="dark"] .modal-content button.close-btn:hover {
+        background-color: rgba(255,255,255,0.1);
+     }
+
+    .modal-content hr {
+      border: none;
+      height: 1px;
+      background-color: rgba(0,0,0,0.1);
+      margin: 25px 0; /* Increased margin */
+    }
+    [data-theme="dark"] .modal-content hr {
+        background-color: rgba(255,255,255,0.15);
+    }
+
+    /* Settings Modal Specific */
+    .modal-content p.about-text {
+      font-size: 1rem;
+      line-height: 1.6; /* Increased line height */
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .modal-content a.youtube-link {
+      display: inline-block; /* Allow button-like styling */
+      text-align: center;
+      margin-top: 20px;
+      color: #fff; /* White text */
+      background: var(--primary-color); /* Button background */
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+    .modal-content a.youtube-link:hover {
+      background-color: var(--accent-color);
+      color: #fff;
+      transform: translateY(-2px);
+      text-decoration: none;
+      box-shadow: 4px 4px 8px rgba(0,0,0,0.25);
+    }
+
+    /* History Modal Specific */
+    #history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px 0;
+      overflow-y: auto;
+      max-height: 45vh; /* Slightly more height */
+      flex-grow: 1;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+      padding-right: 10px; /* Space for scrollbar */
+    }
+    #history-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    #history-list::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+      border-radius: 4px;
+    }
+    #history-list::-webkit-scrollbar-thumb {
+      background-color: var(--scrollbar-thumb);
+      border-radius: 4px;
+      border: 2px solid var(--scrollbar-track);
+    }
+    #history-list li {
+      background-color: var(--btn-bg); /* Match button background */
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 2px 2px 4px var(--btn-shadow-inset);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+     [data-theme="dark"] #history-list li {
+        border: 1px solid rgba(255,255,255,0.08);
+     }
+    #history-list li:hover {
+      background-color: var(--history-item-hover);
+      transform: translateX(5px); /* Slide right on hover */
+      box-shadow: 1px 1px 3px var(--btn-shadow-inset), 0 0 10px var(--primary-color-light); /* Subtle glow */
+    }
+    #history-list .history-expression {
+      font-size: 0.95rem; /* Slightly larger */
+      color: var(--text-color);
+      opacity: 0.75;
+      display: block;
+      margin-bottom: 5px;
+      word-break: break-all;
+      font-weight: 500;
+    }
+    #history-list .history-result {
+      font-size: 1.2rem; /* Larger result */
+      font-weight: 600;
+      color: var(--primary-color);
+      display: block;
+      word-break: break-all;
+    }
+    #clear-history-btn {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      align-self: center;
+      width: auto; /* Fit content */
+      min-width: 150px;
+      margin-top: 10px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+    #clear-history-btn:hover {
+      background-color: var(--accent-color-dark);
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 8px rgba(0,0,0,0.25);
+    }
+    #no-history-msg {
+        text-align: center;
+        padding: 30px; /* More padding */
+        color: var(--text-color);
+        opacity: 0.6;
+        font-style: italic;
+    }
+
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+         padding: 10px;
+      }
+      .calculator {
+        width: 100%;
+        padding: 20px; /* Adjust padding */
+         border-radius: 20px; /* Less rounded on smaller screens */
+      }
+      header {
+        width: 100%;
+        padding: 0 5px;
+        margin-bottom: 15px;
+      }
+       header h1 {
+          font-size: 1.4rem;
+      }
+       #settings-btn, #history-btn {
+          width: 35px;
+          height: 35px;
+          padding: 6px;
+       }
+       .header-buttons {
+           gap: 10px;
+       }
+
+      .display-container {
+         margin-bottom: 20px;
+         padding: 12px 15px;
+      }
+      .display {
+          font-size: 2rem;
+          min-height: 45px;
+      }
+       .live-preview {
+             min-height: 20px;
+             font-size: 0.9rem;
+       }
+      button {
+          font-size: 1.3rem;
+          padding: 15px 0;
+          border-radius: 12px;
+      }
+       button svg {
+           width: 1.3em;
+           height: 1.3em;
+       }
+       .backspace svg {
+            width: 1.5em;
+            height: 1.5em;
+       }
+      .buttons {
+          gap: 12px; /* Adjust gap */
+      }
+
+       .modal-content {
+           padding: 25px;
+           max-height: 85vh;
+           border-radius: 15px;
+       }
+       .modal-content h2 {
+           font-size: 1.7rem;
+           margin-bottom: 20px;
+       }
+       .modal-content label {
+           font-size: 1rem;
+       }
+        .select-wrapper {
+            margin-bottom: 20px;
+        }
+        .modal-content select {
+           padding: 10px 35px 10px 12px;
+        }
+       #clear-history-btn {
+           min-width: 130px;
+           padding: 10px 15px;
+       }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <header>
+    <h1 id="app-title">Calculator</h1>
+    <div class="header-buttons">
+        <button id="history-btn" aria-label="Open History" title="History">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3C17.4183 3 21 6.58172 21 11C21 15.4183 17.4183 19 13 19H6.5C3.46243 19 1 16.5376 1 13.5C1 10.4624 3.46243 8 6.5 8H13V10H6.5C4.567 10 3 11.567 3 13.5C3 15.433 4.567 17 6.5 17H13C16.3137 17 19 14.3137 19 11C19 7.68629 16.3137 5 13 5V3Z M12 1H14V5H12V1ZM12 19H14V23H12V19Z"></path></svg>
+             <!-- History Icon -->
+        </button>
+        <button id="settings-btn" aria-label="Open Settings" title="Settings">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.9381 8.80058L19.1596 7.7807C19.0408 7.62641 18.961 7.44552 18.9289 7.25687C18.8968 7.06822 18.9136 6.87653 18.9779 6.70001L19.071 6.41301C19.5602 4.99907 18.929 3.46121 17.6074 2.72502L17.1868 2.49777C17.0054 2.39481 16.7983 2.33883 16.5869 2.33578C16.3754 2.33273 16.1668 2.38274 15.9856 2.48094L15.03 2.96794C14.8591 3.06151 14.6641 3.10643 14.4692 3.09947C14.2743 3.09251 14.0858 3.03402 13.9211 2.92936L13.1921 2.42736C11.9301 1.63231 10.2934 1.89173 9.40484 3.06206L8.88784 3.80406C8.76581 3.98744 8.59669 4.13339 8.39912 4.22653C8.20155 4.31966 7.98339 4.35647 7.76651 4.33336L6.80851 4.23036C5.4071 4.05964 4.05964 5.4071 4.23036 6.80851L4.33336 7.76651C4.35647 7.98339 4.31966 8.20155 4.22653 8.39912C4.13339 8.59669 3.98744 8.76581 3.80406 8.88784L3.06206 9.40484C1.89173 10.2934 1.63231 11.9301 2.42736 13.1921L2.92936 13.9211C3.03402 14.0858 3.09251 14.2743 3.09947 14.4692C3.10643 14.6641 3.06151 14.8591 2.96794 15.03L2.48094 15.9856C2.38274 16.1668 2.33273 16.3754 2.33578 16.5869C2.33883 16.7983 2.39481 17.0054 2.49777 17.1868L2.72502 17.6074C3.46121 18.929 4.99907 19.5602 6.41301 19.071L6.70001 18.9779C6.87653 18.9136 7.06822 18.8968 7.25687 18.9289C7.44552 18.961 7.62641 19.0408 7.7807 19.1596L8.80058 19.9381C9.70118 20.6155 10.9011 20.8065 12 20.4735C13.0989 20.8065 14.2988 20.6155 15.1994 19.9381L15.9779 19.1596C16.0967 19.0053 16.2765 18.9255 16.4651 18.8934C16.6538 18.8613 16.8455 18.8781 17.022 18.9424L17.599 19.16C18.9705 19.6841 20.5469 19.0893 21.2704 17.7875L21.5024 17.3715C21.6053 17.1901 21.6613 16.983 21.6644 16.7716C21.6674 16.5601 21.6174 16.3515 21.5192 16.1703L21.0322 15.2143C20.9386 15.0434 20.8937 14.8484 20.9007 14.6535C20.9076 14.4586 20.9661 14.2701 21.0708 14.1054L21.5728 13.3764C22.3678 12.1144 22.1084 10.4777 20.9381 9.56906L20.1961 9.05206C20.0127 8.93004 19.8668 8.76091 19.7736 8.56334C19.6805 8.36577 19.6437 8.14761 19.6668 7.93073L19.7698 6.97273C19.9405 5.57134 18.5931 4.22387 17.1917 4.3946L16.2337 4.4976C16.0168 4.52071 15.7986 4.4839 15.6011 4.39077C15.4035 4.29763 15.2344 4.14169 15.1124 3.9583L14.6114 3.2303C13.8163 1.9683 12.1796 1.70888 11.1181 2.46875L10.0615 3.19958C9.89211 3.31782 9.69401 3.39074 9.4873 3.4116C9.2806 3.43246 9.07298 3.39989 8.88784 3.31784L8.8871 3.80484L9.4041 3.06284C10.2926 1.89251 11.9294 1.63309 13.1914 2.42814L13.9204 2.93014C14.0851 3.0348 14.2736 3.09329 14.4685 3.10025C14.6634 3.10721 14.8583 3.06229 15.0293 2.96873L15.9848 2.48173C16.166 2.38352 16.3745 2.33351 16.586 2.33656C16.7975 2.33961 17.0046 2.3956 17.186 2.49855L17.6066 2.7258C18.9282 3.46199 19.5594 5.00065 19.0702 6.41459L18.9772 6.70159C18.9129 6.8781 18.8961 7.06979 18.9282 7.25845C18.9603 7.4471 19.0392 7.62798 19.158 7.78227L19.9365 8.80216C20.8371 9.47954 21.0281 10.6795 20.3951 11.7784L19.8931 12.5074C19.7884 12.672 19.7299 12.8605 19.723 13.0554C19.716 13.2503 19.7609 13.4453 19.8545 13.6162L20.3304 14.5733C20.4813 14.8671 20.546 15.191 20.5184 15.5117C20.4908 15.8324 20.3719 16.1381 20.1754 16.3914L19.9367 16.7149C19.2132 18.0166 17.6368 18.6114 16.2653 18.0873L15.6883 17.87C15.5118 17.8057 15.3201 17.7889 15.1314 17.821C14.9428 17.8531 14.7629 17.9329 14.6086 18.0417L13.829 18.819C13.1517 19.7207 11.9523 19.9123 10.854 19.5791L10.8534 19.5788C11.9517 19.912 13.1516 19.721 14.0522 19.0436L14.8307 18.2651C14.9899 18.1108 15.1907 18.0018 15.4123 17.9492C15.6339 17.8966 15.8665 17.9026 16.0857 17.9668L17.0437 18.2698C18.4451 18.4405 19.7926 17.0931 19.6219 15.6917L19.5189 14.7337C19.4958 14.5168 19.5326 14.2986 19.6257 14.1011C19.7189 13.9035 19.8748 13.7344 20.0582 13.6124L20.7991 13.0943C21.9694 12.2057 22.2288 10.569 21.4338 9.30698L20.9318 8.57798C20.8271 8.41332 20.7686 8.22483 20.7617 8.02992C20.7547 7.83502 20.7996 7.64004 20.8932 7.46916L21.3792 6.51216C21.5301 6.21833 21.5948 5.8945 21.5672 5.57379C21.5396 5.25308 21.4207 4.94737 21.2242 4.69406L20.9855 4.37056C20.262 3.06886 18.6856 2.47408 17.3141 2.99818L16.7371 3.21518C16.5606 3.27947 16.3689 3.29628 16.1802 3.26418C15.9916 3.23208 15.8117 3.1523 15.6574 3.03351L14.8777 2.25613C14.1993 1.3533 12.9983 1.1611 11.8986 1.4936C10.8011 1.1611 9.60118 1.3533 8.92278 2.25613L8.14428 3.03463C7.98505 3.18892 7.78426 3.29794 7.56267 3.35052C7.34108 3.4031 7.10845 3.39711 6.88928 3.33291L5.93128 3.02991C4.52988 2.85919 3.18241 4.20666 3.35314 5.60806L3.45614 6.56606C3.47924 6.78294 3.44243 7.0011 3.3493 7.19867C3.25617 7.39624 3.10022 7.56537 2.91684 7.68739L2.1759 8.20545C1.00557 9.09405 0.74615 10.7308 1.5412 11.9928L2.0432 12.7218C2.14786 12.8865 2.20635 13.075 2.19939 13.2699C2.19243 13.4648 2.13751 13.6597 2.04395 13.8306L1.568 14.7876C1.41711 15.0815 1.35241 15.4053 1.38001 15.726C1.40762 16.0467 1.52652 16.3524 1.72302 16.6057L1.96175 16.9292C2.68525 18.2309 4.26163 18.8257 5.63313 18.3016L6.21013 18.0846C6.38663 18.0203 6.57832 18.0035 6.76698 18.0356C6.95563 18.0677 7.13551 18.1475 7.2898 18.2563L8.06942 19.0337C8.74782 19.9365 9.94886 20.1287 11.0485 19.7962C11.3593 19.9106 11.6815 19.9684 12 19.9684C12.3185 19.9684 12.6407 19.9106 12.9515 19.7962C14.0511 20.1287 15.2522 19.9365 15.9306 19.0337L16.7091 18.2552C16.8683 18.1009 17.0691 17.9919 17.2907 17.9393C17.5123 17.8867 17.7449 17.8927 17.9641 17.9569L18.9221 18.2599C20.3235 18.4306 21.671 17.0832 21.4991 15.6806L21.3973 14.7337L21.3961 14.7226C21.373 14.5057 21.4098 14.2876 21.503 14.09C21.5961 13.8925 21.752 13.7233 21.9354 13.6013L22.6764 13.0833C23.8467 12.1947 24.1061 10.5579 23.3111 9.29594L22.8091 8.56694C22.7044 8.40228 22.6459 8.21379 22.639 8.01888C22.632 7.82398 22.6769 7.62899 22.7705 7.45811L23.2565 6.50111C23.4074 6.20728 23.4721 5.88345 23.4445 5.56274C23.4169 5.24203 23.298 4.93633 23.1015 4.68301L22.8628 4.35951C22.1393 3.05781 20.5629 2.46303 19.1914 2.98713L18.6144 3.20413C18.4379 3.26843 18.2462 3.28524 18.0576 3.25314C17.8689 3.22104 17.689 3.14125 17.5347 3.02246L16.755 2.24509C16.0766 1.34226 14.8756 1.14992 13.7759 1.48211C13.4658 1.36788 13.1443 1.3103 12.814 1.3103C12.4837 1.3103 12.1622 1.36788 11.8521 1.48211C10.7524 1.14992 9.55142 1.34226 8.87302 2.24509L8.09452 3.02359C7.93529 3.17788 7.7345 3.2869 7.51291 3.33948C7.29132 3.39206 7.05869 3.38607 6.83952 3.32187L5.88152 3.01887C4.48012 2.84815 3.13266 4.19562 3.30338 5.59702L3.40638 6.55502C3.42949 6.7719 3.39268 6.99006 3.29954 7.18763C3.20641 7.3852 3.05046 7.55433 2.86708 7.67635L2.12614 8.19441C1.01098 9.04842 0.745588 10.6121 1.50099 11.8238L2.003 12.5534C2.17327 12.7993 2.26213 13.087 2.25886 13.3791C2.25559 13.6712 2.16048 13.9551 2.00098 14.1873L1.51498 14.9343C1.30995 15.256 1.22175 15.6222 1.26005 15.986C1.29835 16.3497 1.46073 16.6872 1.72302 16.9389L1.96175 17.2624C2.68525 18.5641 4.26163 19.1589 5.63313 18.6348L6.21013 18.4178C6.38663 18.3535 6.57832 18.3367 6.76698 18.3688C6.95563 18.4009 7.13551 18.4807 7.2898 18.5895L8.06942 19.3669C8.74782 20.2697 9.94886 20.4619 11.0485 20.1294C11.3593 20.2437 11.6815 20.3013 12 20.3013C12.3185 20.3013 12.6407 20.2437 12.9515 20.1294C14.0511 20.4619 15.2522 20.2697 15.9306 19.3669L16.7091 18.5884C16.8683 18.4341 17.0691 18.3251 17.2907 18.2725C17.5123 18.2199 17.7449 18.2259 17.9641 18.1901L18.9221 18.5931C20.3235 18.7638 21.671 17.4164 21.5 16.015L21.3973 15.057L21.3961 14.7226C21.373 14.5057 21.4098 14.2876 21.503 14.09C21.5961 13.8925 21.752 13.7233 21.9354 13.6013L22.6764 13.0833C23.8467 12.1947 24.1061 10.5579 23.3111 9.29594L22.8091 8.56694C22.7044 8.40228 22.6459 8.21379 22.639 8.01888C22.632 7.82398 22.6769 7.62899 22.7705 7.45811L23.2565 6.50111C23.4074 6.20728 23.4721 5.88345 23.4445 5.56274C23.4169 5.24203 23.298 4.93633 23.1015 4.68301L22.8628 4.35951C22.1393 3.05781 20.5629 2.46303 19.1914 2.98713L18.6144 3.20413C18.4379 3.26843 18.2462 3.28524 18.0576 3.25314C17.8689 3.22104 17.689 3.14125 17.5347 3.02246L16.755 2.24509C16.0766 1.34226 14.8756 1.14992 13.7759 1.48211C13.4658 1.36788 13.1443 1.3103 12.814 1.3103C12.4837 1.3103 12.1622 1.36788 11.8521 1.48211C10.7524 1.14992 9.55142 1.34226 8.87302 2.24509L8.09452 3.02359C7.93529 3.17788 7.7345 3.2869 7.51291 3.33948C7.29132 3.39206 7.05869 3.38607 6.83952 3.32187L5.88152 3.01887C4.48012 2.84815 3.13266 4.19562 3.30338 5.59702L3.40638 6.55502C3.42949 6.7719 3.39268 6.99006 3.29954 7.18763C3.20641 7.3852 3.05046 7.55433 2.86708 7.67635L2.12708 8.19441C1.01192 9.04842 0.746526 10.6121 1.50193 11.8238L2.00393 12.5534C2.17421 12.7993 2.26306 13.087 2.2598 13.3791C2.25653 13.6712 2.16142 13.9551 2.00192 14.1873L1.51592 14.9343C1.31089 15.256 1.22269 15.6222 1.26099 15.986C1.29929 16.3497 1.46166 16.6872 1.72396 16.9389L1.96269 17.2624C2.68618 18.5641 4.26257 19.1589 5.63407 18.6348L6.21107 18.4178C6.38756 18.3535 6.57926 18.3367 6.76792 18.3688C6.95657 18.4009 7.13645 18.4807 7.29074 18.5895L8.07036 19.3669C8.74876 20.2697 9.94979 20.4619 11.0495 20.1294C11.3598 20.2437 11.6815 20.3013 12 20.3013C12.3185 20.3013 12.6402 20.2437 12.9505 20.1294C14.0502 20.4619 15.2512 20.2697 15.9296 19.3669L16.7081 18.5884C16.8673 18.4341 17.0681 18.3251 17.2897 18.2725C17.5113 18.2199 17.7439 18.2259 17.9631 18.1901L18.9211 18.5931C20.3225 18.7638 21.6699 17.4164 21.4991 16.015L21.3964 15.057C21.3733 14.8401 21.4101 14.6219 21.5032 14.4244C21.5964 14.2268 21.7523 14.0577 21.9357 13.9357L22.6767 13.4177C23.847 12.5291 24.1064 10.8923 23.3114 9.63031L22.8094 8.90131C22.7047 8.73665 22.6462 8.54816 22.6392 8.35325C22.6323 8.15835 22.6772 7.96336 22.7708 7.79248L23.2568 6.83548C23.4077 6.54165 23.4724 6.21782 23.4448 5.89711C23.4172 5.5764 23.2983 5.2707 23.1018 5.01738L22.863 4.69388C22.1395 3.39218 20.5631 2.7974 19.1917 3.3215L18.6146 3.5385C18.4381 3.60279 18.2464 3.6196 18.0578 3.5875C17.8692 3.5554 17.6893 3.47562 17.535 3.35683L16.7553 2.57945C16.0769 1.67662 14.8759 1.48428 13.7762 1.81647C13.4661 1.70224 13.1446 1.64465 12.8143 1.64465C12.484 1.64465 12.1625 1.70224 11.8524 1.81647C10.7527 1.48428 9.55174 1.67662 8.87334 2.57945L8.09484 3.35795C7.93561 3.51224 7.73482 3.62126 7.51323 3.67384C7.29164 3.72642 7.05901 3.72043 6.83984 3.65623L5.88184 3.35323C4.48044 3.18251 3.13298 4.52998 3.3037 5.93138L3.4067 6.88938C3.4298 7.10626 3.393 7.32442 3.29986 7.52199C3.20673 7.71956 3.05078 7.88869 2.8674 8.01071L2.12646 8.52877C1.01129 9.38278 0.745903 10.9464 1.50131 12.1581L2.00331 12.8877C2.17358 13.1336 2.26244 13.4213 2.25917 13.7134C2.2559 14.0055 2.16079 14.2894 2.00129 14.5216L1.51529 15.2686C1.31026 15.5903 1.22206 15.9565 1.26036 16.3203C1.29866 16.684 1.46104 17.0215 1.72333 17.2732L1.96206 17.5967C2.68556 18.8984 4.26194 19.4932 5.63344 18.9691L6.21044 18.7521C6.38694 18.6878 6.57863 18.671 6.76729 18.7031C6.95595 18.7352 7.13583 18.815 7.29012 18.9238L8.06974 19.7012C8.74813 20.604 9.94917 20.7962 11.0488 20.4637C11.3591 20.578 11.6813 20.6356 12 20.6356C12.3187 20.6356 12.6409 20.578 12.9512 20.4637C14.0508 20.7962 15.2519 20.604 15.9303 19.7012L16.7088 18.9227C16.868 18.7684 17.0688 18.6594 17.2904 18.6068C17.512 18.5542 17.7446 18.5602 17.9638 18.5244L18.9218 18.9274C20.3232 19.0981 21.6707 17.7507 21.5 16.3493L21.3973 15.3913C21.3742 15.1744 21.411 14.9562 21.5041 14.7587C21.5973 14.5611 21.7532 14.392 21.9366 14.27L22.6776 13.752C23.8479 12.8634 24.1073 11.2266 23.3123 9.96464L22.8103 9.23564C22.7056 9.07098 22.6471 8.88249 22.6401 8.68758C22.6332 8.49268 22.6781 8.29769 22.7717 8.12681L23.2577 7.16981C23.4086 6.87598 23.4733 6.55215 23.4457 6.23144C23.4181 5.91073 23.2992 5.60503 23.1027 5.35171L22.864 5.02821C22.1405 3.72651 20.5641 3.13173 19.1926 3.65583L18.6156 3.87283C18.4391 3.93712 18.2474 3.95393 18.0588 3.92183C17.8701 3.88973 17.6902 3.80995 17.5359 3.69116L16.7562 2.91378C16.0778 2.01095 14.8768 1.81861 13.7771 2.1508C13.467 2.03657 13.1455 1.97899 12.8152 1.97899C12.4849 1.97899 12.1634 2.03657 11.8533 2.1508C10.7536 1.81861 9.55262 2.01095 8.87422 2.91378L8.09572 3.69228C7.93649 3.84657 7.7357 3.95559 7.51411 4.00817C7.29252 4.06075 7.05989 4.05476 6.84072 3.99056L5.88272 3.68756C4.48132 3.51684 3.13386 4.86431 3.30458 6.26571L3.40758 7.22371C3.43069 7.44059 3.39388 7.65875 3.30074 7.85632C3.20761 8.05389 3.05166 8.22302 2.86828 8.34504L2.12734 8.8631C1.01217 9.71711 0.746786 11.2808 1.50219 12.4925L2.00419 13.2221C2.17447 13.468 2.26332 13.7557 2.26005 14.0478C2.25679 14.3399 2.16168 14.6238 2.00218 14.856L1.51618 15.603C1.31115 15.9247 1.22295 16.2909 1.26125 16.6547C1.29955 17.0184 1.46193 17.3559 1.72422 17.6076L1.96295 17.9311C2.68644 19.2328 4.26283 19.8276 5.63433 19.3035L6.21133 19.0865C6.38783 19.0222 6.57952 19.0054 6.76818 19.0375C6.95684 19.0696 7.13672 19.1494 7.29101 19.2582L8.07063 20.0355C8.74902 20.9383 9.95006 21.1305 11.0498 20.798C11.3596 20.9122 11.6813 20.97 12 20.97C12.3187 20.97 12.6404 20.9122 12.9502 20.798C14.0499 21.1305 15.2509 20.9383 15.9293 20.0355L16.7078 19.257C16.867 19.1027 17.0678 18.9937 17.2894 18.9411C17.511 18.8885 17.7436 18.8945 17.9628 18.8587L18.9208 19.2617C20.3222 19.4324 21.6697 18.085 21.5 16.6836L21.3973 15.7256C21.3742 15.5087 21.411 15.2905 21.5041 15.093C21.5973 14.8954 21.7532 14.7263 21.9366 14.6043L22.6776 14.0863C23.8479 13.1977 24.1073 11.5609 23.3123 10.2989L22.8103 9.56994C22.7056 9.40528 22.6471 9.21679 22.6401 9.02188C22.6332 8.82698 22.6781 8.63199 22.7717 8.46111L23.2577 7.50411C23.4086 7.21028 23.4733 6.88645 23.4457 6.56574C23.4181 6.24503 23.2992 5.93933 23.1027 5.68601L22.864 5.36251C22.1405 4.06081 20.5641 3.46603 19.1926 3.99013L18.6156 4.20713C18.4391 4.27142 18.2474 4.28823 18.0588 4.25613C17.8701 4.22403 17.6902 4.14425 17.5359 4.02546L16.7562 3.24809C16.0778 2.34526 14.8768 2.15292 13.7771 2.48511C13.467 2.37088 13.1455 2.3133 12.8152 2.3133C12.4849 2.3133 12.1634 2.37088 11.8533 2.48511C10.7536 2.15292 9.55262 2.34526 8.87422 3.24809L8.09572 4.02659C7.93649 4.18088 7.7357 4.2899 7.51411 4.34248C7.29252 4.39506 7.05989 4.38907 6.84072 4.32487L5.88272 4.02187C4.48132 3.85115 3.13386 5.19862 3.30458 6.60002L3.40758 7.55802C3.43069 7.7749 3.39388 7.99306 3.30074 8.19063C3.20761 8.3882 3.05166 8.55733 2.86828 8.67935L2.12734 9.19741C1.01217 10.0514 0.746786 11.6151 1.50219 12.8268L2.00419 13.5564C2.17447 13.8023 2.26332 14.09 2.26005 14.3821C2.25679 14.6742 2.16168 14.9581 2.00218 15.1903L1.51618 15.9373C1.31115 16.259 1.22295 16.6252 1.26125 16.989C1.29955 17.3527 1.46193 17.6902 1.72422 17.9419L1.96295 18.2654C2.68644 19.5671 4.26283 20.1619 5.63433 19.6378L6.21133 19.4208C6.38783 19.3565 6.57952 19.3397 6.76818 19.3718C6.95684 19.4039 7.13672 19.4837 7.29101 19.5925L8.07063 20.37C8.74902 21.2728 9.95006 21.465 11.0498 21.1325C11.3596 21.2467 11.6813 21.3043 12 21.3043C12.3187 21.3043 12.6404 21.2467 12.9502 21.1325C14.0499 21.465 15.2509 21.2728 15.9293 20.37L16.7078 19.5915C16.867 19.4372 17.0678 19.3282 17.2894 19.2756C17.511 19.223 17.7436 19.229 17.9628 19.1932L18.9208 19.5962C20.3222 19.7669 21.6697 18.4195 21.5 17.0181L21.3973 16.0601C21.3742 15.8432 21.411 15.625 21.5041 15.4275C21.5973 15.2299 21.7532 15.0608 21.9366 14.9388L22.6776 14.4208C23.8479 13.5322 24.1073 11.8954 23.3123 10.6334L22.8103 9.90444Z M12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12C16 14.2091 14.2091 16 12 16Z"></path></svg>
+             <!-- Settings Icon -->
+        </button>
+    </div>
+  </header>
+
+  <main class="calculator" role="main" aria-label="Calculator">
+    <div class="display-container">
+        <div class="display" id="display" aria-live="polite" aria-atomic="true" tabindex="0">0</div>
+        <div class="live-preview" id="live-preview" aria-live="polite"></div>
+    </div>
+    <div class="buttons">
+      <button type="button" class="clear" id="clear">C</button>
+      <button type="button" class="parenthesis" data-value="(">(</button>
+      <button type="button" class="parenthesis" data-value=")">)</button>
+      <button type="button" class="backspace" id="backspace" aria-label="Backspace">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 4H9.41421L11.7071 6.29289C11.8946 6.48043 12 6.73478 12 7V17C12 17.2652 11.8946 17.5196 11.7071 17.7071L9.41421 20H17C18.1046 20 19 19.1046 19 18V6C19 4.89543 18.1046 4 17 4Z M21 18V6C21 3.79086 19.2091 2 17 2H7C6.43661 2 5.9087 2.20887 5.5292 2.5643L2.29289 5.5643C1.90237 5.9289 1.90237 6.5109 2.29289 6.8755L5.5292 10.2186C5.9087 10.574 6.43661 10.7829 7 10.7829H7.0416C7.4659 10.7829 7.8742 10.6343 8.1843 10.3496L11 7.7829V16.2171L8.1843 13.6504C7.8742 13.3657 7.4659 13.2171 7.0416 13.2171H7C6.43661 13.2171 5.9087 13.426 5.5292 13.7814L2.29289 17.1245C1.90237 17.4891 1.90237 18.0711 2.29289 18.4357L5.5292 21.4357C5.9087 21.7911 6.43661 22 7 22H17C19.2091 22 21 20.2091 21 18Z"></path></svg>
+         <!-- Backspace Icon -->
+      </button>
+
+      <button type="button" data-value="7">7</button>
+      <button type="button" data-value="8">8</button>
+      <button type="button" data-value="9">9</button>
+      <button type="button" class="operator" data-value="/">
+         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M5 11H19V13H5V11ZM12 4C10.8954 4 10 4.89543 10 6C10 7.10457 10.8954 8 12 8C13.1046 8 14 7.10457 14 6C14 4.89543 13.1046 4 12 4ZM10 18C10 16.8954 10.8954 16 12 16C13.1046 16 14 16.8954 14 18C14 19.1046 13.1046 20 12 20C10.8954 20 10 19.1046 10 18Z"></path></svg>
+         <!-- Divide Icon -->
+      </button>
+
+      <button type="button" data-value="4">4</button>
+      <button type="button" data-value="5">5</button>
+      <button type="button" data-value="6">6</button>
+      <button type="button" class="operator" data-value="*">
+         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="0.9em" height="0.9em"><path d="M12 10.5858L5.63604 4.22183L4.22183 5.63604L10.5858 12L4.22183 18.364L5.63604 19.7782L12 13.4142L18.364 19.7782L19.7782 18.364L13.4142 12L19.7782 5.63604L18.364 4.22183L12 10.5858Z"></path></svg>
+         <!-- Multiply Icon -->
+      </button>
+
+      <button type="button" data-value="1">1</button>
+      <button type="button" data-value="2">2</button>
+      <button type="button" data-value="3">3</button>
+      <button type="button" class="operator" data-value="-">
+         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M5 11V13H19V11H5Z"></path></svg>
+         <!-- Subtract Icon -->
+      </button>
+
+      <button type="button" data-value="0">0</button>
+      <button type="button" data-value=".">.</button>
+      <button type="button" class="operator" data-value="%">%</button>
+      <button type="button" class="operator" data-value="+">
+         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
+         <!-- Add Icon -->
+      </button>
+
+      <button type="button" class="equal" id="equals" style="grid-column: span 4;">=</button>
+    </div>
+  </main>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1">
+    <div class="modal-content">
+      <button class="close-btn" id="close-settings" aria-label="Close Settings">×</button>
+      <h2 id="settings-title">Settings</h2>
+      <label for="language-select">Language </label>
+      <div class="select-wrapper">
+        <select id="language-select" aria-describedby="language-desc">
+          <option value="en" selected>English</option>
+        </select>
+      </div>
+      <label for="theme-select">Theme :</label>
+      <div class="select-wrapper">
+        <select id="theme-select">
+          <option value="light" selected>Light </option>
+          <option value="dark">Dark </option>
+        </select>
+      </div>
+      <hr />
+      <h2>About</h2>
+      <p class="about-text" id="about-text">
+        𝙰𝚁𝚇 𝙲𝙾𝙼𝙼𝚄𝙽𝙸𝚃𝚈<br />
+        A simple, clean, and powerful calculator tool.
+      </p>
+      <div style="text-align: center;"> <!-- Wrapper for centering link -->
+          <a href="https://t.me/+Ci8Wzi3cfEtiYWI1" target="_blank" rel="noopener" class="youtube-link" id="youtube-link">
+            Visit Telegram Channel 
+          </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="modal" id="history-modal" role="dialog" aria-modal="true" aria-labelledby="history-title" tabindex="-1">
+      <div class="modal-content">
+          <button class="close-btn" id="close-history" aria-label="Close History">×</button>
+          <h2 id="history-title">Calculation History</h2>
+          <ul id="history-list">
+              <!-- History items will be populated here -->
+              <li id="no-history-msg" style="display: none;">No history yet.</li>
+          </ul>
+          <button id="clear-history-btn">Clear History</button>
+      </div>
+  </div>
+
+
+  <script>
+    (() => {
+      // DOM Elements (mostly unchanged)
+      const display = document.getElementById('display');
+      const livePreviewElement = document.getElementById('live-preview');
+      const buttons = document.querySelectorAll('.buttons button[data-value]');
+      const clearBtn = document.getElementById('clear');
+      const backspaceBtn = document.getElementById('backspace');
+      const equalsBtn = document.getElementById('equals');
+      const settingsBtn = document.getElementById('settings-btn');
+      const settingsModal = document.getElementById('settings-modal');
+      const closeSettingsBtn = document.getElementById('close-settings');
+      const languageSelect = document.getElementById('language-select');
+      const themeSelect = document.getElementById('theme-select');
+      const appTitle = document.getElementById('app-title');
+      const aboutText = document.getElementById('about-text');
+      const youtubeLink = document.getElementById('youtube-link');
+      const historyBtn = document.getElementById('history-btn');
+      const historyModal = document.getElementById('history-modal');
+      const closeHistoryBtn = document.getElementById('close-history');
+      const historyList = document.getElementById('history-list');
+      const clearHistoryBtn = document.getElementById('clear-history-btn');
+      const noHistoryMsg = document.getElementById('no-history-msg');
+
+      // State (unchanged)
+      let expression = '0';
+      let history = [];
+      const MAX_HISTORY = 20;
+
+      // Language strings (unchanged, assuming text content is ok)
+      const strings = {
+        en: {
+          title: 'Calculator',
+          clear: 'C',
+          backspaceLabel: 'Backspace', // Label for aria, button uses icon
+          settingsTitle: 'Settings',
+          languageLabel: 'Language:',
+          themeLabel: 'Theme:',
+          aboutText: '𝙰𝚁𝚇 𝙲𝙾𝙼𝙼𝚄𝙽𝙸𝚃𝚈\nA simple, clean, and powerful calculator tool.',
+          youtubeText: '𝙰𝚁𝚇 𝙲𝙾𝙼𝙼𝚄𝙽𝙸𝚃𝚈',
+          historyTitle: 'Calculation History',
+          clearHistory: 'Clear History',
+          noHistory: 'No history yet.',
+          error: 'Error',
+          invalidExpr: 'Invalid Expression',
+          divByZero: 'Cannot divide by zero',
+          operators: { '/': '/', '*': '*', '-': '-', '+': '+', '%': '%' } // Use symbols directly now with icons
+        },
+        hi: {
+          title: 'कैलकुलेटर',
+          clear: 'साफ़',
+          backspaceLabel: 'पिछला', // Label for aria
+          settingsTitle: 'सेटिंग्स',
+          languageLabel: 'भाषा:',
+          themeLabel: 'थीम:',
+          aboutText: '𝙰𝚁𝚇 𝙲𝙾𝙼𝙼𝚄𝙽𝙸𝚃𝚈 द्वारा बनाया गया\nएक सरल, साफ़ और शक्तिशाली कैलकुलेटर टूल।',
+          youtubeText: '𝙰𝚁𝚇 𝙲𝙾𝙼𝙼𝚄𝙽𝙸𝚃𝚈',
+          historyTitle: 'गणना इतिहास',
+          clearHistory: 'इतिहास साफ़ करें',
+          noHistory: 'अभी तक कोई इतिहास नहीं है।',
+          error: 'त्रुटि',
+          invalidExpr: 'अमान्य व्यंजक',
+          divByZero: 'शून्य से भाग नहीं दे सकते',
+          operators: { '/': '/', '*': '*', '-': '-', '+': '+', '%': '%' } // Use symbols directly
+        }
+      };
+
+      // --- Utility Functions ---
+
+      function getCurrentLangStrings() {
+          return strings[languageSelect.value] || strings.en;
+      }
+
+      // Update Display: Simplified, as operators are handled by icons/direct input now
+      function updateDisplay(value) {
+          let displayValue = value.toString();
+          const s = getCurrentLangStrings();
+
+          // Only translate error messages now
+          if (displayValue === strings.en.error) displayValue = s.error;
+          else if (displayValue === strings.en.invalidExpr) displayValue = s.invalidExpr;
+          else if (displayValue === strings.en.divByZero) displayValue = s.divByZero;
+          // No need to replace operators visually in the display string itself
+
+          display.textContent = displayValue;
+
+          // Adjust font size logic (improved)
+          const maxFontSize = 2.4; // Corresponds to initial CSS
+          const minFontSize = 1;
+          let currentFontSize = maxFontSize;
+          display.style.fontSize = `${currentFontSize}rem`;
+          display.style.lineHeight = '1.3'; // Reset line height
+
+          // Reduce font size
+          while ((display.scrollWidth > display.clientWidth || display.scrollHeight > display.clientHeight * 1.1) && currentFontSize > minFontSize) { // Check height too
+              currentFontSize = Math.max(minFontSize, currentFontSize - 0.1);
+              display.style.fontSize = `${currentFontSize}rem`;
+              // Increase line-height slightly as font shrinks to prevent clipping
+              display.style.lineHeight = `${1.3 + (maxFontSize - currentFontSize) * 0.1}`;
+              if (currentFontSize === minFontSize) break;
+          }
+          // Increase font size (minor adjustment)
+          // This part is less critical now with height check, keep simple
+          if (display.scrollWidth <= display.clientWidth && display.scrollHeight <= display.clientHeight * 1.1 && currentFontSize < maxFontSize) {
+             // Optional: Add logic to slightly increase if space permits, but avoid complex loops here.
+             // The reduction logic is usually sufficient.
+          }
+      }
+
+
+      // --- Live Preview Logic --- (Functionally unchanged, but relies on updated display)
+      function isPotentiallyEvaluatable(expr) {
+          const trimmedExpr = expr.trim();
+          if (!trimmedExpr || trimmedExpr === '0' || trimmedExpr === '-') return false;
+
+          const lastChar = trimmedExpr.slice(-1);
+          if (['+', '-', '*', '/', '(', '.', '%'].includes(lastChar)) {
+              return false;
+          }
+          const openParens = (trimmedExpr.match(/\(/g) || []).length;
+          const closeParens = (trimmedExpr.match(/\)/g) || []).length;
+          if (openParens > closeParens) {
+              return false;
+          }
+          const s = getCurrentLangStrings(); // Get current strings for error check
+          const errorMessages = [s.error, s.invalidExpr, s.divByZero];
+          if (errorMessages.includes(trimmedExpr)) {
+              return false;
+          }
+          // Check if it's just a number (more robust check)
+          try {
+             // If it consists only of digits, '.', and maybe a leading '-', it's likely just a number
+             if (/^-?\d*\.?\d+$/.test(trimmedExpr) && !/[+\-*/%()]/.test(trimmedExpr.substring(1))) {
+                 return false; // Don't preview if it's just a number being typed
+             }
+             // Allow preview for single number inside balanced parens, e.g., (5)
+             if (/^\(-?\d*\.?\d+\)$/.test(trimmedExpr)) {
+                 return true;
+             }
+          } catch {}
+
+          // Requires at least one operator (not just leading minus) or parentheses for preview
+          return /[+\-*/%()]/.test(trimmedExpr.replace(/^-/, ''));
+      }
+
+      function tryEvaluateLive() {
+          if (!livePreviewElement) return;
+
+          let exprToEval = expression;
+          const s = getCurrentLangStrings();
+
+          if (!isPotentiallyEvaluatable(exprToEval)) {
+              livePreviewElement.textContent = '';
+              return;
+          }
+
+          try {
+              if (/[^0-9+\-*/().%]/.test(exprToEval)) {
+                   throw new Error("Invalid chars");
+               }
+
+              let tempExpr = exprToEval.replace(/%/g, '/100');
+
+              // Robust evaluation needed here
+              // Simple Function constructor might fail with complex expressions or edge cases during typing.
+              // For live preview, we might accept minor inaccuracies or only evaluate simpler cases.
+              // Let's stick with Function constructor but catch errors gracefully.
+
+              // Pre-computation check for safety (e.g., prevent excessively long expressions)
+              if (tempExpr.length > 100) { // Limit complexity for live preview
+                  livePreviewElement.textContent = '';
+                  return;
+              }
+
+              let result = Function('"use strict";return (' + tempExpr + ')')();
+
+              if (!isFinite(result)) {
+                  livePreviewElement.textContent = '';
+              } else {
+                  result = Math.round((result + Number.EPSILON) * 1e8) / 1e8; // 8 decimal places
+
+                   // Avoid showing preview if result is same as a simple number expression
+                  let currentNumericValue = NaN;
+                  try {
+                     if (/^-?\d*\.?\d+$/.test(expression)) { // check if current expression is just a number
+                         currentNumericValue = parseFloat(expression);
+                     }
+                  } catch {}
+
+                  if (result !== currentNumericValue) {
+                       livePreviewElement.textContent = `= ${result}`;
+                   } else {
+                       livePreviewElement.textContent = '';
+                   }
+              }
+          } catch (e) {
+              // console.warn("Live eval failed:", e.message); // Optional logging
+              livePreviewElement.textContent = '';
+          }
+      }
+
+
+      // --- Core Calculator Logic --- (Mostly unchanged, but uses updated display/error strings)
+
+       function resetExpression() {
+         expression = '0';
+         updateDisplay(expression);
+         if (livePreviewElement) livePreviewElement.textContent = '';
+       }
+
+       function appendToExpression(value) {
+         const lastChar = expression.slice(-1);
+         const operators = ['+', '*', '/', '%']; // Exclude '-' for specific checks
+         const allOperators = ['+', '-', '*', '/', '%'];
+         const s = getCurrentLangStrings();
+         const errorMessages = [s.error, s.invalidExpr, s.divByZero];
+
+         // Handle starting after error
+         if (errorMessages.includes(expression)) {
+              if (!allOperators.includes(value) || value === '-' || value === '(' || value === '.') { // Allow starting with number, (, ., or -
+                  expression = (value === '.') ? '0.' : value;
+                  updateDisplay(expression);
+                  tryEvaluateLive();
+                  return;
+              } else {
+                  return; // Ignore other operators after error
+              }
+         }
+
+         // Standard logic for appending (mostly unchanged from previous version)
+         if (operators.includes(lastChar) && operators.includes(value)) {
+             expression = expression.slice(0, -1) + value;
+         } else if (operators.includes(lastChar) && value === '-') {
+              if(lastChar !== '-') {
+                  expression += value;
+              } else return;
+         } else if (lastChar === '-' && value === '-') {
+              return;
+         } else if (lastChar === '(' && allOperators.includes(value) && value !== '-') {
+             return;
+         } else if (value === '.' && [')', '%'].includes(lastChar)) {
+             return;
+         } else if (value === '.') {
+             const parts = expression.split(/[\+\-\*\/%\(\)]/);
+             if (parts.length > 0 && parts[parts.length - 1].includes('.')) {
+                 return;
+             }
+             if (allOperators.includes(lastChar) || lastChar === '(' || expression === '0') {
+                  expression = (expression === '0') ? '0.' : expression + '0.';
+             } else {
+                  expression += value;
+             }
+         } else if (expression === '0' && !['.', '(', '-', '%'].includes(value) && !allOperators.includes(value) ) {
+              expression = value;
+         } else if (expression === '0' && value === '(') {
+              expression = '(';
+         } else if (expression === '0' && value === '-') {
+              expression = '-';
+         } else if ( (lastChar === ')' || lastChar === '%') && (/[0-9(]/.test(value)) ) {
+              expression += '*' + value;
+         } else if (value === '%' && (allOperators.includes(lastChar) || ['(','.'].includes(lastChar)) ) {
+              return;
+         } else if (value === ')' && (lastChar === '(' || allOperators.includes(lastChar) || lastChar === '.')) {
+              return;
+         } else if (value === ')') {
+              const openParens = (expression.match(/\(/g) || []).length;
+              const closeParens = (expression.match(/\)/g) || []).length;
+              if (openParens <= closeParens) {
+                  return;
+              }
+              expression += value;
+          } else {
+             expression += value;
+          }
+
+         updateDisplay(expression);
+         tryEvaluateLive();
+       }
+
+      function backspaceExpression() {
+         const s = getCurrentLangStrings();
+         const errorMessages = [s.error, s.invalidExpr, s.divByZero];
+         if (errorMessages.includes(expression)) {
+             resetExpression();
+             return;
+         }
+
+         if (expression.length > 1) {
+           expression = expression.slice(0, -1);
+         } else {
+           expression = '0';
+         }
+         // If backspace results in ending with an operator/dot/paren, update preview correctly
+         updateDisplay(expression);
+         tryEvaluateLive();
+       }
+
+      function evaluateExpression() {
+         const openParens = (expression.match(/\(/g) || []).length;
+         const closeParens = (expression.match(/\)/g) || []).length;
+         const s = getCurrentLangStrings();
+
+         if (openParens !== closeParens) {
+              expression = s.invalidExpr;
+              updateDisplay(expression);
+              if (livePreviewElement) livePreviewElement.textContent = '';
+              return;
+         }
+         const lastChar = expression.trim().slice(-1);
+          if (['+', '-', '*', '/', '(', '.'].includes(lastChar)) {
+              // Allow just a negative number, e.g., "-5"
+              if (!(lastChar === '-' && /^-?\d*\.?\d+$/.test(expression))) {
+                 expression = s.invalidExpr;
+                 updateDisplay(expression);
+                 if (livePreviewElement) livePreviewElement.textContent = '';
+                 return;
+              }
+          }
+
+         let exprToEval = expression;
+         const originalExpression = expression;
+
+         try {
+           if (/[^0-9+\-*/().%]/.test(exprToEval)) {
+              throw new Error(s.invalidExpr);
+           }
+
+           exprToEval = exprToEval.replace(/%/g, '/100');
+
+           // Final check for division by zero patterns more carefully
+           if (/\/0(?!\.)/.test(exprToEval.replace(/\s/g,''))) { // Matches /0, /0*, etc. but not /0.5
+                // Further check if it's part of a larger valid expression that might resolve
+                // This basic check is often enough, but complex cases might exist.
+                // For simplicity, we'll throw the error if the pattern exists.
+                // A more robust approach involves parsing the expression tree.
+                try {
+                    // Try evaluating to see if it naturally becomes Infinity
+                    let preliminaryResult = Function('"use strict";return (' + exprToEval + ')')();
+                    if (!isFinite(preliminaryResult)) {
+                        throw new Error(s.divByZero);
+                    }
+                    // If it evaluates to a finite number (e.g., 0/0 might be NaN handled later), proceed
+                } catch (prelimError) {
+                    // If the preliminary evaluation itself throws (like syntax error), rethrow that
+                    // If it specifically threw the divByZero error already, let it propagate
+                    if (prelimError.message === s.divByZero) throw prelimError;
+                     // Otherwise, if /0 pattern exists and evaluation failed, likely div by zero intended
+                    throw new Error(s.divByZero);
+                }
+           }
+
+
+           let result = Function('"use strict";return (' + exprToEval + ')')();
+
+           if (!isFinite(result)) {
+             // Already checked basic /0, so this handles NaN or other Infinities
+             throw new Error(s.error); // More generic error now
+           }
+
+           result = Math.round((result + Number.EPSILON) * 1e8) / 1e8;
+
+           expression = result.toString();
+           updateDisplay(expression);
+           addToHistory(originalExpression, expression);
+           if (livePreviewElement) livePreviewElement.textContent = '';
+
+         } catch (e) {
+           console.error("Calculation Error:", e);
+           // Prioritize specific errors if message matches
+           expression = e.message === s.divByZero ? s.divByZero :
+                        e.message === s.invalidExpr ? s.invalidExpr :
+                        s.error; // Default to generic error
+           updateDisplay(expression);
+           if (livePreviewElement) livePreviewElement.textContent = '';
+         }
+       }
+
+
+      // --- History Functions --- (Functionally unchanged, rendering uses symbols directly)
+      function loadHistory() {
+         const savedHistory = localStorage.getItem('calculatorHistory');
+         history = savedHistory ? JSON.parse(savedHistory) : [];
+      }
+
+      function saveHistory() {
+         localStorage.setItem('calculatorHistory', JSON.stringify(history));
+      }
+
+       function addToHistory(expr, res) {
+         const s = getCurrentLangStrings();
+         const errorMessages = [s.error, s.invalidExpr, s.divByZero];
+         if (expr === res || errorMessages.includes(res)) return;
+
+         if (history.length > 0) {
+             const lastEntry = history[history.length - 1];
+             if (lastEntry.expression === expr && lastEntry.result === res) {
+                 return;
+             }
+         }
+
+         history.push({ expression: expr, result: res });
+         if (history.length > MAX_HISTORY) {
+           history = history.slice(-MAX_HISTORY);
+         }
+         saveHistory();
+         if (historyModal.classList.contains('active')) {
+             renderHistory();
+         }
+       }
+
+       function renderHistory() {
+           const s = getCurrentLangStrings();
+           historyList.innerHTML = '';
+
+           if (history.length === 0) {
+               noHistoryMsg.textContent = s.noHistory;
+               noHistoryMsg.style.display = 'block';
+               clearHistoryBtn.style.display = 'none';
+               return;
+           }
+
+           noHistoryMsg.style.display = 'none';
+           clearHistoryBtn.style.display = 'block';
+
+           history.slice().reverse().forEach(item => {
+               const li = document.createElement('li');
+               li.setAttribute('role', 'button');
+               li.setAttribute('tabindex', '0');
+               // Use actual expression and result in label
+               li.setAttribute('aria-label', `Calculation: ${item.expression} equals ${item.result}. Click to use result.`);
+
+               const exprSpan = document.createElement('span');
+               exprSpan.className = 'history-expression';
+               // Display expression as it was entered (no symbol replacement needed now)
+               exprSpan.textContent = item.expression;
+
+               const resSpan = document.createElement('span');
+               resSpan.className = 'history-result';
+               resSpan.textContent = `= ${item.result}`;
+
+               li.appendChild(exprSpan);
+               li.appendChild(resSpan);
+
+               li.addEventListener('click', () => {
+                   expression = item.result.toString();
+                   updateDisplay(expression);
+                   tryEvaluateLive(); // Show preview if applicable (e.g., if result is used in new calc)
+                   closeHistory();
+               });
+                li.addEventListener('keydown', (e) => {
+                   if (e.key === 'Enter' || e.key === ' ') {
+                       e.preventDefault();
+                       li.click();
+                   }
+               });
+
+               historyList.appendChild(li);
+           });
+       }
+
+       function clearHistory() {
+           const s = getCurrentLangStrings();
+           // Using a more styled confirmation could be an improvement later
+           if (confirm(s.clearHistory + "?")) {
+             history = [];
+             saveHistory();
+             renderHistory();
+           }
+       }
+
+
+      // --- Modal Handling --- (Unchanged logic, CSS handles animation)
+      function openModal(modal) {
+          modal.style.display = 'flex'; // Change display first
+           setTimeout(() => { // Allow display change to render before starting transition
+               modal.classList.add('active');
+               const focusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+               if (focusable) focusable.focus();
+           }, 10); // Small delay
+      }
+
+      function closeModal(modal) {
+          modal.classList.remove('active');
+          // Wait for animation to finish before setting display none
+          modal.addEventListener('transitionend', () => {
+               modal.style.display = 'none';
+          }, { once: true }); // Important: only listen once
+
+          if (modal === settingsModal) settingsBtn.focus();
+          else if (modal === historyModal) historyBtn.focus();
+          else display.focus();
+      }
+
+      function openSettings() { openModal(settingsModal); }
+      function closeSettings() { closeModal(settingsModal); }
+      function openHistory() { renderHistory(); openModal(historyModal); }
+      function closeHistory() { closeModal(historyModal); }
+
+
+      // --- Language and Theme --- (Simplified language update due to icons)
+      function updateLanguage() {
+         const lang = languageSelect.value;
+         const s = strings[lang];
+         document.documentElement.lang = lang;
+         appTitle.textContent = s.title;
+         clearBtn.textContent = s.clear; // Clear button text
+         backspaceBtn.setAttribute('aria-label', s.backspaceLabel); // Update aria-label for icon button
+         document.getElementById('settings-title').textContent = s.settingsTitle;
+         document.querySelector('label[for="language-select"]').textContent = s.languageLabel;
+         document.querySelector('label[for="theme-select"]').textContent = s.themeLabel;
+         aboutText.innerHTML = s.aboutText.replace(/\n/g, '<br />');
+         youtubeLink.textContent = s.youtubeText;
+         document.getElementById('history-title').textContent = s.historyTitle;
+         clearHistoryBtn.textContent = s.clearHistory;
+         if (noHistoryMsg) noHistoryMsg.textContent = s.noHistory;
+
+         // No need to update operator button text content as they use icons/symbols directly
+
+         if (historyModal.classList.contains('active')) {
+             renderHistory();
+         }
+         // Update display/preview if showing error messages
+         updateDisplay(expression);
+         tryEvaluateLive();
+       }
+
+      function updateTheme() {
+         const theme = themeSelect.value;
+         document.body.setAttribute('data-theme', theme);
+         localStorage.setItem('calculatorTheme', theme);
+       }
+
+      function loadPreferences() {
+           const savedLang = localStorage.getItem('calculatorLang');
+           const savedTheme = localStorage.getItem('calculatorTheme');
+           if (savedLang && strings[savedLang]) {
+               languageSelect.value = savedLang;
+           }
+           if (savedTheme) {
+               themeSelect.value = savedTheme;
+           }
+           loadHistory();
+       }
+
+      // --- Event Listeners --- (Added active-keypress logic)
+
+      buttons.forEach(btn => {
+         btn.addEventListener('click', () => {
+           appendToExpression(btn.getAttribute('data-value'));
+           btn.blur();
+         });
+       });
+
+      clearBtn.addEventListener('click', () => { resetExpression(); clearBtn.blur(); });
+      backspaceBtn.addEventListener('click', () => { backspaceExpression(); backspaceBtn.blur(); });
+      equalsBtn.addEventListener('click', () => { evaluateExpression(); equalsBtn.blur(); });
+
+      // Keyboard support
+      window.addEventListener('keydown', (e) => {
+         // Improved check for modal focus
+         const activeModal = document.querySelector('.modal.active');
+         if (activeModal) {
+             // Allow Escape key even if focus is inside modal elements
+             if (e.key === 'Escape') {
+                 if (settingsModal.classList.contains('active')) closeSettings();
+                 if (historyModal.classList.contains('active')) closeHistory();
+                 e.preventDefault(); // Prevent default escape behavior (like closing fullscreen)
+                 return;
+             }
+             // Prevent calculator input if focus is inside modal's interactive elements
+             const activeElement = document.activeElement;
+              if (activeElement && activeModal.contains(activeElement) && ['SELECT', 'INPUT', 'TEXTAREA', 'BUTTON', 'A'].includes(activeElement.tagName)) {
+                 return;
+             }
+         }
+
+         const key = e.key;
+         let handled = false;
+         let targetButton = null; // Track which button corresponds to the key
+
+         if (key >= '0' && key <= '9') { handled = true; targetButton = document.querySelector(`.buttons button[data-value="${key}"]`); appendToExpression(key); }
+         else if (['+', '-', '*', '/', '%', '.', '(', ')'].includes(key)) { handled = true; targetButton = document.querySelector(`.buttons button[data-value="${key}"]`); appendToExpression(key); }
+         else if (key === 'Enter' || key === '=') { handled = true; targetButton = equalsBtn; evaluateExpression(); }
+         else if (key === 'Backspace') { handled = true; targetButton = backspaceBtn; backspaceExpression(); }
+         else if (key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey && !e.altKey) { handled = true; targetButton = clearBtn; resetExpression(); }
+         // Escape key handled above for modals
+
+         if (handled) {
+             e.preventDefault();
+             if (targetButton) {
+                 targetButton.classList.add('active-keypress'); // Add visual feedback class
+                 // Remove the class after a short delay
+                 setTimeout(() => {
+                    if (targetButton) targetButton.classList.remove('active-keypress');
+                 } , 150);
+             }
+         }
+       });
+
+       // Modal events (backdrop click improved)
+       settingsBtn.addEventListener('click', openSettings);
+       closeSettingsBtn.addEventListener('click', closeSettings);
+       settingsModal.addEventListener('click', (e) => {
+         if (e.target === settingsModal) closeSettings(); // Close only if clicking the backdrop itself
+       });
+
+       historyBtn.addEventListener('click', openHistory);
+       closeHistoryBtn.addEventListener('click', closeHistory);
+       historyModal.addEventListener('click', (e) => {
+         if (e.target === historyModal) closeHistory();
+       });
+       clearHistoryBtn.addEventListener('click', clearHistory);
+
+
+       // Preference change events
+       languageSelect.addEventListener('change', () => {
+           updateLanguage();
+           localStorage.setItem('calculatorLang', languageSelect.value);
+       });
+       themeSelect.addEventListener('change', updateTheme);
+
+
+       // --- Initialization ---
+       function init() {
+         loadPreferences();
+         updateTheme();
+         updateLanguage();
+         resetExpression();
+         // Don't focus display initially, let user click or tab
+         // display.focus();
+       }
+
+       init();
+
+    })();
+  </script>
+</body>
+</html>

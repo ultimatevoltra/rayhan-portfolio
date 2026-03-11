@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAYHAN UDDIN | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-cyan: #00f2ff;
+            --neon-glow: 0 0 15px rgba(0, 242, 255, 0.6);
+        }
+
+        body {
+            background: #05080f;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: #05080f;
+        }
+
+        .premium-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 242, 255, 0.15);
+            border-radius: 25px;
+            box-shadow: var(--neon-glow);
+        }
+
+        .neon-text {
+            color: var(--neon-cyan);
+            text-shadow: var(--neon-glow);
+        }
+
+        /* Profile Animation */
+        .profile-container {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 20px;
+        }
+
+        .outer-dotted {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            top: -10px;
+            left: -10px;
+            border: 2px dotted var(--neon-cyan);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan);
+            top: 50%;
+            z-index: 10;
+            animation: scan 3s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes scan {
+            0%, 100% { top: 10%; opacity: 0; }
+            50% { top: 90%; opacity: 1; }
+        }
+
+        .profile-img-wrapper {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 3px solid var(--neon-cyan);
+            overflow: hidden;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Tools Style */
+        .tool-link {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px 5px;
+            border-radius: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .tool-link:hover {
+            background: rgba(0, 242, 255, 0.15);
+            transform: translateY(-3px);
+            border-color: var(--neon-cyan);
+        }
+
+        .tool-link i {
+            color: var(--neon-cyan);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .tool-link span {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .btn-premium {
+            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+            font-weight: 800;
+            transition: 0.3s;
+        }
+
+        /* Skills Progress */
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+.progress-fill {
+            height: 100%;
+            background: var(--neon-cyan);
+            box-shadow: var(--neon-glow);
+        }
+
+        /* Input Styling */
+        input, textarea {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(0, 242, 255, 0.2) !important;
+            color: white !important;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--neon-cyan) !important;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="max-w-4xl mx-auto p-4 relative z-10">
+    <div class="text-center mt-6 mb-10">
+        <div class="profile-container">
+            <div class="outer-dotted"></div>
+            <div class="scan-line"></div>
+            <div class="profile-img-wrapper">
+                <img src="https://i.ibb.co/DqfvgNj/20251213-160205-1.jpg" class="w-full h-full object-cover" alt="Profile">
+            </div>
+        </div>
+        <h1 class="text-4xl neon-text font-black uppercase tracking-tighter">RAYHAN UDDIN</h1>
+        <div class="mt-2 h-6">
+            <span id="typed" style="font-family: 'Share Tech Mono'; color: #00f2ff;"></span>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="premium-card p-6 border-l-4 border-l-[#00f2ff]">
+            <h2 class="text-xl neon-text mb-6 flex items-center uppercase tracking-widest">
+                <i class="fas fa-terminal mr-3"></i> System Info
+            </h2>
+            <ul class="space-y-4 font-extrabold text-xs">
+                <li><i class="fas fa-shield-alt mr-2 text-cyan-400"></i> Cyber Security Specialist</li>
+                <li><i class="fas fa-code mr-2 text-cyan-400"></i> Web & App Developer</li>
+                <li><i class="fas fa-robot mr-2 text-cyan-400"></i> Telegram Bot Maker</li>
+                <li><i class="fas fa-user-secret mr-2 text-cyan-400"></i> Ethical Hacker (White Hat)</li>
+            </ul>
+        </div>
+
+        <div class="premium-card p-6">
+            <h2 class="text-xl neon-text mb-6 text-center uppercase tracking-widest">⚙️ Station Tools</h2>
+            <div class="grid grid-cols-4 gap-3">
+                <a href="text.html" class="tool-link"><i class="fas fa-file-alt"></i><span>Text</span></a>
+                <a href="game.html" class="tool-link"><i class="fas fa-chess"></i><span>Game</span></a>
+                <a href="love.html" class="tool-link"><i class="fas fa-heart"></i><span>Love</span></a>
+                <a href="cc.html" class="tool-link"><i class="fas fa-credit-card"></i><span>CC Gen</span></a>
+                <a href="ai.html" class="tool-link"><i class="fas fa-robot"></i><span>AI Bot</span></a>
+                <a href="pas.html" class="tool-link"><i class="fas fa-key"></i><span>Pass</span></a>
+                <a href="cal.html" class="tool-link"><i class="fas fa-calculator"></i><span>Calc</span></a>
+                <a href="age.html" class="tool-link"><i class="fas fa-birthday-cake"></i><span>Age</span></a>
+                <a href="newgame.html" class="tool-link"><i class="fas fa-gamepad"></i><span>New Game</span></a>
+                <a href="world.html" class="tool-link"><i class="fas fa-globe"></i><span>World</span></a>
+                <a href="Free_HosterBD.html" class="tool-link"><i class="fas fa-server"></i><span>Hosting</span></a>
+                <a href="Email.html" class="tool-link"><i class="fas fa-envelope-open-text"></i><span>Email</span></a>
+            </div>
+            <button onclick="document.querySelector('.grid.grid-cols-4').scrollIntoView({behavior:'smooth'})" class="tool-link mt-4 flex-row gap-4 border-purple-500/50 hover:border-purple-500 py-3 w-full cursor-pointer">
+                <i class="fas fa-bolt" style="color: #a855f7; margin-bottom: 0;"></i>
+                <span class="text-sm">TAP💣 YOUR FAVOURITE TOOLS🎉</span>
+            </button>
+        </div>
+    </div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+        <div class="premium-card p-6 text-center">
+            <i class="fas fa-diagram-project text-3xl neon-text mb-4"></i>
+            <h3 class="text-4xl font-black">20</h3>
+            <p class="text-[10px] tracking-widest opacity-60 uppercase mt-2">Projects Completed</p>
+        </div>
+        <div class="premium-card p-6 text-center">
+            <i class="fas fa-calendar-check text-3xl neon-text mb-4"></i>
+            <h3 class="text-4xl font-black">4</h3>
+            <p class="text-[10px] tracking-widest opacity-60 uppercase mt-2">Years Experience</p>
+        </div>
+        <div class="premium-card p-6 text-center">
+            <i class="fas fa-file-code text-3xl neon-text mb-4"></i>
+            <h3 class="text-4xl font-black">15,000</h3>
+            <p class="text-[10px] tracking-widest opacity-60 uppercase mt-2">Lines of Code</p>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-10">
+        <div class="premium-card p-6">
+            <h2 class="text-xl neon-text mb-6 flex items-center uppercase tracking-widest">
+                <i class="fas fa-heart mr-3"></i> Hobbies
+            </h2>
+            <div class="space-y-3">
+                <div class="bg-slate-800/40 p-3 rounded-xl flex items-center">
+                    <i class="fas fa-globe mr-4 text-cyan-400"></i> Geopolitics
+                </div>
+                <div class="bg-slate-800/40 p-3 rounded-xl flex items-center">
+                    <i class="fas fa-microchip mr-4 text-cyan-400"></i> Tech & AI
+                </div>
+                <div class="bg-slate-800/40 p-3 rounded-xl flex items-center">
+                    <i class="fas fa-laptop-code mr-4 text-cyan-400"></i> Code Addict
+                </div>
+            </div>
+        </div>
+
+        <div class="premium-card p-6">
+            <h2 class="text-xl neon-text mb-6 flex items-center uppercase tracking-widest">
+                <i class="fas fa-chart-line mr-3"></i> Skills
+            </h2>
+            <div class="space-y-5">
+                <div>
+                    <div class="flex justify-between text-xs mb-2"><span>Cyber Security</span><span>95%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 95%;"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs mb-2"><span>Web Development</span><span>90%</span></div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 90%;"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="premium-card p-8 mt-10">
+        <h2 class="text-2xl neon-text mb-8 text-center font-black uppercase tracking-[5px]">Get in Touch</h2>
+        <form action="https://formsubmit.co/nmr026206@gmail.com" method="POST" class="space-y-4">
+            <input type="hidden" name="_subject" value="New message from Rayhan's Portfolio">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_template" value="table">
+            <div class="relative">
+                <input type="text" name="name" placeholder="Your Name" required class="w-full p-4 rounded-xl outline-none transition">
+                <i class="fas fa-user absolute right-4 top-5 text-slate-500"></i>
+            </div>
+            <div class="relative">
+                <input type="email" name="email" placeholder="Your Email" required class="w-full p-4 rounded-xl outline-none transition">
+                <i class="fas fa-envelope absolute right-4 top-5 text-slate-500"></i>
+            </div>
+            <div class="relative">
+                <textarea name="message" placeholder="Your Message" rows="4" required class="w-full p-4 rounded-xl outline-none transition"></textarea>
+                <i class="fas fa-comment absolute right-4 top-5 text-slate-500"></i>
+            </div>
+            <button type="submit" class="w-full btn-premium p-4 rounded-xl flex items-center justify-center gap-3 text-lg uppercase shadow-lg">
+                Send Message <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+
+<div class="premium-card p-6 mt-10">
+        <h2 class="text-xl neon-text mb-6 text-center uppercase tracking-widest">Connect With Me</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="https://t.me/ProRayhan" class="btn-premium p-4 rounded-2xl flex items-center justify-center text-white">
+                <i class="fab fa-telegram text-2xl mr-3"></i> TELEGRAM
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61578057322919" class="btn-premium p-4 rounded-2xl flex items-center justify-center bg-blue-700 text-white">
+                <i class="fab fa-facebook text-2xl mr-3"></i> FACEBOOK
+            </a>
+            <a href="https://www.tiktok.com/@rayhan018234" class="btn-premium p-4 rounded-2xl flex items-center justify-center bg-blue-600 text-white">
+                <i class="fab fa-tiktok text-2xl mr-3"></i> TIKTOK
+            </a>
+        </div>
+    </div>
+
+    <footer class="mt-12 text-center opacity-30 text-[10px] tracking-[5px] uppercase pb-10">
+        &copy; 2026 RAYHAN | ENCRYPTED
+    </footer>
+</div>
+
+<script>
+    // Typing Effect
+    new Typed('#typed', {
+        strings: ['Cyber Security Specialist', 'Full Stack Developer', 'Telegram Bot Maker', 'White Hat Hacker'],
+        typeSpeed: 50,
+        backSpeed: 30,
+        loop: true
+    });
+
+    // Background Particles
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const PARTICLE_COUNT = 150;
+    const MAX_DISTANCE = 150;
+
+    function initParticles() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: (Math.random() - 0.5) * 0.8,
+                size: Math.random() * 2 + 1
+            });
+        }
+    }
+
+    function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(0, 242, 255, 0.4)";
+        ctx.strokeStyle = "rgba(0, 242, 255, 0.1)";
+
+        particles.forEach((p, i) => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+
+            for (let j = i + 1; j < particles.length; j++) {
+                const dist = Math.hypot(p.x - particles[j].x, p.y - particles[j].y);
+                if (dist < MAX_DISTANCE) {
+                    ctx.globalAlpha = 1 - dist / MAX_DISTANCE;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        });
+        requestAnimationFrame(drawParticles);
+    }
+
+    window.addEventListener('resize', initParticles);
+    initParticles();
+    drawParticles();
+</script>
+
+</body>
+</html>

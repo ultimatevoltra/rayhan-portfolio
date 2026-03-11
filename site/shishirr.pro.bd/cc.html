@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CC Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; }
+
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-bottom: 1px solid #2d3748; padding: 20px 24px; margin-bottom: 24px; }
+        .header-content .title { font-size: 24px; font-weight: 700; color: #63b3ed; display: flex; align-items: center; gap: 10px; }
+        .header-content .title .material-icons { font-size: 28px; }
+        .header-content .subtitle { font-size: 13px; color: #718096; margin-top: 4px; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .tab-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border: 1px solid #2d3748; border-radius: 8px; background: #1a202c; color: #718096; cursor: pointer; font-size: 14px; font-weight: 500; transition: all .2s; }
+        .tab-btn.active, .tab-btn:hover { background: #2b6cb0; border-color: #3182ce; color: #fff; }
+
+        .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media(max-width:700px){ .main-content { grid-template-columns: 1fr; } }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: contents; }
+
+        .card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; overflow: hidden; }
+        .card-header { background: #2d3748; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+        .card-header h2 { font-size: 15px; font-weight: 600; color: #e2e8f0; }
+        .card-actions { display: flex; gap: 8px; }
+        .card-body { padding: 18px; }
+
+        .form { display: flex; flex-direction: column; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-label { font-size: 12px; font-weight: 600; color: #a0aec0; text-transform: uppercase; letter-spacing: .5px; }
+        .form-input, .form-select {
+            background: #2d3748; border: 1px solid #4a5568; border-radius: 8px;
+            color: #e2e8f0; padding: 10px 12px; font-size: 14px; font-family: 'Inter', sans-serif;
+            transition: border-color .2s;
+        }
+        .form-input:focus, .form-select:focus { outline: none; border-color: #3182ce; }
+        .form-help { font-size: 11px; color: #718096; }
+
+        .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #cbd5e0; }
+        .checkbox-label input[type=checkbox] { width: 16px; height: 16px; accent-color: #3182ce; cursor: pointer; }
+
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
+        .btn-primary { background: linear-gradient(135deg, #2b6cb0, #3182ce); color: #fff; width: 100%; justify-content: center; }
+        .btn-primary:hover { background: linear-gradient(135deg, #3182ce, #4299e1); transform: translateY(-1px); }
+        .btn-secondary { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 8px 14px; font-size: 13px; }
+        .btn-secondary:hover:not(:disabled) { background: #4a5568; color: #e2e8f0; }
+        .btn-secondary:disabled { opacity: .4; cursor: not-allowed; }
+
+        .results-container { min-height: 200px; font-family: 'Courier New', monospace; font-size: 13px; }
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: #4a5568; gap: 10px; text-align: center; }
+        .empty-state .material-icons { font-size: 48px; }
+        .empty-subtitle { font-size: 12px; color: #4a5568; margin-top: 4px; }
+
+        .cc-item { background: #2d3748; border: 1px solid #4a5568; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+        .cc-text { color: #68d391; font-size: 13px; word-break: break-all; }
+        .cc-copy { background: none; border: none; color: #718096; cursor: pointer; padding: 4px; border-radius: 4px; }
+        .cc-copy:hover { color: #63b3ed; background: #4a5568; }
+        .cc-copy .material-icons { font-size: 16px; }
+
+        .stats-container { display: flex; gap: 20px; padding: 12px 0 4px; border-top: 1px solid #2d3748; margin-top: 10px; }
+        .stat-item { display: flex; gap: 6px; font-size: 13px; }
+        .stat-label { color: #718096; }
+        .stat-value { color: #63b3ed; font-weight: 700; }
+
+        .user-card { background: #2d3748; border: 1px solid #4a5568; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+        .user-name { font-size: 15px; font-weight: 600; color: #90cdf4; margin-bottom: 8px; }
+        .user-field { display: flex; gap: 8px; font-size: 12px; margin-bottom: 4px; }
+        .user-field-label { color: #718096; min-width: 80px; }
+        .user-field-value { color: #e2e8f0; }
+
+        .footer { text-align: center; color: #4a5568; font-size: 12px; padding: 24px 0 0; }
+
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #2d3748; color: #e2e8f0; padding: 12px 18px; border-radius: 8px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 999; border-left: 4px solid #3182ce; }
+        .toast.show { opacity: 1; }
+        .toast.success { border-left-color: #48bb78; }
+        .toast.error { border-left-color: #fc8181; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title"><span class="material-icons">credit_card</span> CC Generator</h1>
+                <p class="subtitle">Advanced Credit Card & Fake User Generator</p>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="cc-gen"><span class="material-icons">credit_card</span> CC Generator</button>
+            <button class="tab-btn" data-tab="user-gen"><span class="material-icons">person</span> User Generator</button>
+        </div>
+
+        <main class="main-content">
+            <div id="cc-gen" class="tab-content active">
+                <div class="generator-section">
+                    <div class="card">
+                        <div class="card-header"><h2>CC Generator Settings</h2></div>
+                        <div class="card-body">
+                            <form id="generatorForm" class="form">
+                                <div class="form-group">
+                                    <label for="binInput" class="form-label">BIN (Bank Identification Number)</label>
+                                    <input type="text" id="binInput" class="form-input" placeholder="Enter BIN (e.g., 4532)" maxlength="16">
+                                    <div class="form-help">Enter 4-16 digits. Leave empty for random generation.</div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="cardType" class="form-label">Card Type</label>
+                                        <select id="cardType" class="form-select">
+                                            <option value="auto">Auto Detect</option>
+                                            <option value="visa">Visa</option>
+                                            <option value="mastercard">Mastercard</option>
+                                            <option value="amex">American Express</option>
+                                            <option value="discover">Discover</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="quantity" class="form-label">Quantity</label>
+                                        <input type="number" id="quantity" class="form-input" value="10" min="1" max="100">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="expMonth" class="form-label">Expiry Month</label>
+                                        <select id="expMonth" class="form-select">
+                                            <option value="random">Random</option>
+                                            <option value="01">01</option><option value="02">02</option>
+                                            <option value="03">03</option><option value="04">04</option>
+                                            <option value="05">05</option><option value="06">06</option>
+                                            <option value="07">07</option><option value="08">08</option>
+                                            <option value="09">09</option><option value="10">10</option>
+                                            <option value="11">11</option><option value="12">12</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="expYear" class="form-label">Expiry Year</label>
+                                        <select id="expYear" class="form-select">
+                                            <option value="random">Random</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="outputFormat" class="form-label">Output Format</label>
+                                    <select id="outputFormat" class="form-select">
+                                        <option value="detailed">Detailed Format</option>
+                                        <option value="pipe">Pipe Format (ccno|mm|yy|cvv)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="detailedOptions">
+                                    <label class="form-label">Include Options</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label"><input type="checkbox" id="includeCvv" checked> Include CVV</label>
+                                        <label class="checkbox-label"><input type="checkbox" id="includeExpiry" checked> Include Expiry Date</label>
+                                        <label class="checkbox-label"><input type="checkbox" id="includeNames"> Include Random Names</label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary"><span class="material-icons">generating_tokens</span> Generate Cards</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Generated Cards</h2>
+                            <div class="card-actions">
+                                <button id="copyBtn" class="btn btn-secondary" disabled><span class="material-icons">content_copy</span> Copy All</button>
+                                <button id="clearBtn" class="btn btn-secondary" disabled><span class="material-icons">clear</span> Clear</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="results" class="results-container">
+                                <div class="empty-state">
+                                    <span class="material-icons">credit_card_off</span>
+                                    <p>No cards generated yet</p>
+                                    <p class="empty-subtitle">Fill in the form and click "Generate Cards" to get started</p>
+                                </div>
+                            </div>
+                            <div id="stats" class="stats-container" style="display:none;">
+                                <div class="stat-item"><span class="stat-label">Generated:</span><span id="generatedCount" class="stat-value">0</span></div>
+                                <div class="stat-item"><span class="stat-label">Valid:</span><span id="validCount" class="stat-value">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="user-gen" class="tab-content">
+                <div class="generator-section">
+                    <div class="card">
+                        <div class="card-header"><h2>User Generator Settings</h2></div>
+                        <div class="card-body">
+                            <form id="userGeneratorForm" class="form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="userQuantity" class="form-label">Quantity</label>
+                                        <input type="number" id="userQuantity" class="form-input" value="5" min="1" max="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="userGender" class="form-label">Gender</label>
+                                        <select id="userGender" class="form-select">
+                                            <option value="random">Random</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="userNationality" class="form-label">Nationality</label>
+                                    <select id="userNationality" class="form-select">
+                                        <option value="US">United States</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="AU">Australia</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="FR">France</option>
+                                        <option value="IN">India</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary"><span class="material-icons">person_add</span> Generate Users</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Generated Users</h2>
+                            <div class="card-actions">
+                                <button id="copyUserBtn" class="btn btn-secondary" disabled><span class="material-icons">content_copy</span> Copy All</button>
+                                <button id="clearUserBtn" class="btn btn-secondary" disabled><span class="material-icons">clear</span> Clear</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="userResults" class="results-container">
+                                <div class="empty-state">
+                                    <span class="material-icons">person_off</span>
+                                    <p>No users generated yet</p>
+                                    <p class="empty-subtitle">Fill in the form and click "Generate Users" to get started</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer"><p>&copy; 2026 CC Generator - For Educational Purposes Only</p></footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+    // --- TABS ---
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+    });
+
+    // --- YEAR OPTIONS ---
+    const yearSel = document.getElementById('expYear');
+    const curYear = new Date().getFullYear();
+    for (let y = curYear; y <= curYear + 8; y++) {
+        const o = document.createElement('option');
+        o.value = String(y).slice(2);
+        o.textContent = y;
+        yearSel.appendChild(o);
+    }
+
+    // --- LUHN ---
+    function luhn(num) {
+        let sum = 0, alt = false;
+        for (let i = num.length - 1; i >= 0; i--) {
+            let n = parseInt(num[i]);
+            if (alt) { n *= 2; if (n > 9) n -= 9; }
+            sum += n; alt = !alt;
+        }
+        return sum % 10 === 0;
+    }
+
+    function luhnComplete(partial) {
+        const base = partial + '0';
+        for (let d = 0; d <= 9; d++) {
+            const attempt = partial + d;
+            if (luhn(attempt)) return attempt;
+        }
+        return base;
+    }
+
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function pad(n, len) { return String(n).padStart(len, '0'); }
+
+    const PREFIXES = { visa: ['4'], mastercard: ['51','52','53','54','55'], amex: ['34','37'], discover: ['6011','65'] };
+    const LENGTHS  = { visa: 16, mastercard: 16, amex: 15, discover: 16 };
+
+    function detectType(bin) {
+        if (/^4/.test(bin)) return 'visa';
+        if (/^5[1-5]/.test(bin)) return 'mastercard';
+        if (/^3[47]/.test(bin)) return 'amex';
+        if (/^6(011|5)/.test(bin)) return 'discover';
+        return 'visa';
+    }
+
+    function generateCC(bin, type, month, year) {
+        const t = type === 'auto' ? (bin ? detectType(bin) : rand(['visa','mastercard','discover'])) : type;
+        const len = LENGTHS[t];
+        const prefix = bin || rand(PREFIXES[t]);
+        let partial = prefix;
+        while (partial.length < len - 1) partial += randInt(0, 9);
+        const cc = luhnComplete(partial.slice(0, len - 1));
+        const mm = month === 'random' ? pad(randInt(1,12),2) : month;
+        const yy = year === 'random' ? pad(randInt(curYear % 100, (curYear + 6) % 100), 2) : year;
+        const cvv = t === 'amex' ? pad(randInt(0,9999),4) : pad(randInt(0,999),3);
+        return { cc, mm, yy, cvv, type: t };
+    }
+
+    const NAMES_M = ['James','John','Robert','Michael','William','David','Richard','Joseph','Thomas','Charles'];
+    const NAMES_F = ['Mary','Patricia','Jennifer','Linda','Barbara','Elizabeth','Susan','Jessica','Sarah','Karen'];
+    const LAST    = ['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Taylor'];
+
+    function randName(gender) {
+        const first = gender === 'female' ? rand(NAMES_F) : rand(NAMES_M);
+        return `${first} ${rand(LAST)}`;
+    }
+
+    // --- CC GENERATE ---
+    let generatedCards = [];
+    document.getElementById('generatorForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const bin      = document.getElementById('binInput').value.trim();
+        const type     = document.getElementById('cardType').value;
+        const qty      = Math.min(parseInt(document.getElementById('quantity').value)||10, 100);
+        const month    = document.getElementById('expMonth').value;
+        const year     = document.getElementById('expYear').value;
+        const fmt      = document.getElementById('outputFormat').value;
+        const incCvv   = document.getElementById('includeCvv').checked;
+        const incExp   = document.getElementById('includeExpiry').checked;
+        const incName  = document.getElementById('includeNames').checked;
+
+        generatedCards = [];
+        for (let i = 0; i < qty; i++) generatedCards.push(generateCC(bin, type, month, year));
+
+        const resultsEl = document.getElementById('results');
+        resultsEl.innerHTML = '';
+        generatedCards.forEach(c => {
+            let text;
+            if (fmt === 'pipe') {
+                text = `${c.cc}|${c.mm}|${c.yy}|${c.cvv}`;
+            } else {
+                let parts = [c.cc];
+                if (incExp)  parts.push(`${c.mm}/${c.yy}`);
+                if (incCvv)  parts.push(c.cvv);
+                if (incName) parts.push(randName('random'));
+                text = parts.join(' | ');
+            }
+            const item = document.createElement('div');
+            item.className = 'cc-item';
+            item.innerHTML = `<span class="cc-text">${text}</span><button class="cc-copy" title="Copy"><span class="material-icons">content_copy</span></button>`;
+            item.querySelector('.cc-copy').onclick = () => { navigator.clipboard.writeText(text); showToast('Copied!', 'success'); };
+            resultsEl.appendChild(item);
+        });
+
+        document.getElementById('stats').style.display = 'flex';
+        document.getElementById('generatedCount').textContent = qty;
+        document.getElementById('validCount').textContent = generatedCards.filter(c => luhn(c.cc)).length;
+        document.getElementById('copyBtn').disabled = false;
+        document.getElementById('clearBtn').disabled = false;
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+        const text = generatedCards.map(c => `${c.cc}|${c.mm}|${c.yy}|${c.cvv}`).join('\n');
+        navigator.clipboard.writeText(text);
+        showToast('All cards copied!', 'success');
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        document.getElementById('results').innerHTML = '<div class="empty-state"><span class="material-icons">credit_card_off</span><p>No cards generated yet</p></div>';
+        document.getElementById('stats').style.display = 'none';
+        document.getElementById('copyBtn').disabled = true;
+        document.getElementById('clearBtn').disabled = true;
+        generatedCards = [];
+    });
+
+    document.getElementById('outputFormat').addEventListener('change', function() {
+        document.getElementById('detailedOptions').style.display = this.value === 'detailed' ? '' : 'none';
+    });
+
+    // --- USER GENERATE ---
+    const ADDR = ['123 Main St','456 Oak Ave','789 Pine Rd','321 Elm Dr','654 Maple Ln'];
+    const CITIES = {
+        US: [{city:'New York',state:'NY',zip:'10001'},{city:'Los Angeles',state:'CA',zip:'90001'},{city:'Chicago',state:'IL',zip:'60601'}],
+        GB: [{city:'London',state:'England',zip:'EC1A 1BB'},{city:'Manchester',state:'England',zip:'M1 1AE'}],
+        CA: [{city:'Toronto',state:'ON',zip:'M5H 2N2'},{city:'Vancouver',state:'BC',zip:'V6B 1A1'}],
+        AU: [{city:'Sydney',state:'NSW',zip:'2000'},{city:'Melbourne',state:'VIC',zip:'3000'}],
+        DE: [{city:'Berlin',state:'Berlin',zip:'10115'},{city:'Munich',state:'Bavaria',zip:'80331'}],
+        FR: [{city:'Paris',state:'Île-de-France',zip:'75001'},{city:'Lyon',state:'Auvergne',zip:'69001'}],
+        IN: [{city:'Mumbai',state:'Maharashtra',zip:'400001'},{city:'Delhi',state:'Delhi',zip:'110001'}],
+    };
+
+    let generatedUsers = [];
+    document.getElementById('userGeneratorForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const qty  = Math.min(parseInt(document.getElementById('userQuantity').value)||5, 50);
+        const gender = document.getElementById('userGender').value;
+        const nat  = document.getElementById('userNationality').value;
+
+        generatedUsers = [];
+        const userResults = document.getElementById('userResults');
+        userResults.innerHTML = '';
+
+        for (let i = 0; i < qty; i++) {
+            const g = gender === 'random' ? rand(['male','female']) : gender;
+            const name = randName(g);
+            const loc  = rand(CITIES[nat] || CITIES['US']);
+            const email = name.toLowerCase().replace(' ','.') + randInt(10,99) + '@gmail.com';
+            const phone = '+1' + randInt(200,999) + randInt(1000000,9999999);
+            const dob   = `${pad(randInt(1,28),2)}/${pad(randInt(1,12),2)}/${randInt(1980,2000)}`;
+            const user  = { name, email, phone, dob, address: `${rand(ADDR)}, ${loc.city}, ${loc.state} ${loc.zip}` };
+            generatedUsers.push(user);
+
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            card.innerHTML = `
+                <div class="user-name">${name}</div>
+                <div class="user-field"><span class="user-field-label">Email:</span><span class="user-field-value">${email}</span></div>
+                <div class="user-field"><span class="user-field-label">Phone:</span><span class="user-field-value">${phone}</span></div>
+                <div class="user-field"><span class="user-field-label">DOB:</span><span class="user-field-value">${dob}</span></div>
+                <div class="user-field"><span class="user-field-label">Address:</span><span class="user-field-value">${user.address}</span></div>
+            `;
+            userResults.appendChild(card);
+        }
+
+        document.getElementById('copyUserBtn').disabled = false;
+        document.getElementById('clearUserBtn').disabled = false;
+    });
+
+    document.getElementById('copyUserBtn').addEventListener('click', () => {
+        const text = generatedUsers.map(u => `${u.name} | ${u.email} | ${u.phone} | ${u.dob} | ${u.address}`).join('\n');
+        navigator.clipboard.writeText(text);
+        showToast('All users copied!', 'success');
+    });
+
+    document.getElementById('clearUserBtn').addEventListener('click', () => {
+        document.getElementById('userResults').innerHTML = '<div class="empty-state"><span class="material-icons">person_off</span><p>No users generated yet</p></div>';
+        document.getElementById('copyUserBtn').disabled = true;
+        document.getElementById('clearUserBtn').disabled = true;
+        generatedUsers = [];
+    });
+
+    // --- TOAST ---
+    function showToast(msg, type='info') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast show ${type}`;
+        clearTimeout(t._to);
+        t._to = setTimeout(() => t.className = 'toast', 2500);
+    }
+    </script>
+</body>
+</html>

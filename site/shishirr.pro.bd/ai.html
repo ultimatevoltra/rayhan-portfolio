@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="icon" href="https://img.icons8.com/nolan/64/artificial-intelligence.png" type="image/png">
+    <script src="https://www.google.com/recaptcha/api.js?render=6Ld4nRwrAAAAAP6dhNFTDsLr3ARMgDfamlXHwn1v" async defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED-X Ai- Generate Stunning AI Art Images for Free</title>
+    <meta name="description" content="Create beautiful AI-generated art with Red-X AI. Transform your text prompts into stunning visuals with our free AI image generator.">
+    <meta name="keywords" content="AI image generator, AI art, text to image, AI creator, digital art">
+    <meta name="author" content="Red-X AI">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link href="wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"> 
+    <noscript><link href="wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    <style>
+        :root {
+            --primary: #6E56CF;
+            --primary-light: #8A74DD;
+            --primary-dark: #4F3AA3;
+            --accent: #00C4A3;
+            --bg: #0F0F1A;
+            --card: #1A1A2E;
+            --card-light: #24243D;
+            --text: #F5F5FF;
+            --text-light: #B0B0D0;
+            --border: #3A3A5A;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --neon-glow: 0 0 20px rgba(110, 86, 207, 0.5);
+            --success: #00C853;
+            --warning: #FFAB00;
+            --error: #FF1744;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --glass: rgba(26, 26, 46, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overscroll-behavior: none;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(110, 86, 207, 0.15) 0%, transparent 30%), 
+                radial-gradient(circle at 80% 70%, rgba(0, 196, 163, 0.15) 0%, transparent 30%);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin: 20px;
+            position: relative;
+            will-change: transform;
+            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(26, 26, 46, 0.6));
+            border: 1px solid var(--glass-border);
+        }
+        .header {
+            padding: 32px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.7));
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(110, 86, 207, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: var(--neon-glow);
+            transition: var(--transition);
+        }
+        .logo:hover .logo-icon {
+            transform: rotate(15deg) scale(1.1);
+        }
+        .header h1 {
+            font-size: clamp(28px, 5vw, 36px);
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            color: var(--text-light);
+            font-size: clamp(14px, 3vw, 16px);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .input-area {
+            padding: 32px;
+            display: flex;
+            gap: 24px;
+            flex-direction: column;
+        }
+        .prompt-container {
+            position: relative;
+        }
+        #prompt {
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            background-color: var(--card-light);
+            color: var(--text);
+            border: 1px solid var(--border);
+            min-height: 120px;
+            resize: none;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+            background: rgba(36, 36, 61, 0.5);
+        }
+        #prompt:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(110, 86, 207, 0.3);
+            outline: none;
+            background: rgba(36, 36, 61, 0.7);
+        }
+        #prompt::placeholder {
+            color: var(--text-light);
+            opacity: 0.6;
+        }
+        .prompt-counter {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            font-size: 12px;
+            color: var(--text-light);
+            background-color: rgba(26, 26, 46, 0.7);
+            padding: 4px 8px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        label {
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        label i {
+            color: var(--primary-light);
+            font-size: 16px;
+        }
+        select {
+            padding: 14px 16px;
+            border-radius: 12px;
+            background-color: var(--card-light);
+            color: var(--text);
+            border: 1px solid var(--border);
+            width: 100%;
+            transition: var(--transition);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B0B0D0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            backdrop-filter: blur(5px);
+            background: rgba(36, 36, 61, 0.5);
+            font-size: 14px;
+        }
+        select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(110, 86, 207, 0.3);
+            outline: none;
+            background: rgba(36, 36, 61, 0.7);
+        }
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            font-size: 16px;
+            margin-top: 8px;
+            box-shadow: 0 4px 15px rgba(110, 86, 207, 0.3);
+        }
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+        .generate-btn:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(110, 86, 207, 0.4);
+        }
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        .generate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            transform: none;
+            box-shadow: none;
+        }
+        .generate-btn:disabled::before {
+            display: none;
+        }
+        .progress-container {
+            padding: 0 32px 32px;
+            display: none;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        .progress-bar {
+            height: 8px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .image-container {
+            padding: 0 32px 32px;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .image-item {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            aspect-ratio: 1/1;
+            will-change: transform;
+            border: 1px solid var(--border);
+        }
+        .image-item.portrait-frame {
+            aspect-ratio: 3/4;
+        }
+        .image-item.landscape-frame {
+            aspect-ratio: 4/3;
+        }
+        .image-item.wide-frame {
+            aspect-ratio: 16/9;
+        }
+        .image-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            border-color: var(--primary-light);
+        }
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            display: none;
+            object-fit: cover;
+            background-color: var(--card-light);
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+        .loader::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 4px solid transparent;
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1.5s linear infinite reverse;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 90%;
+            text-align: center;
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+            background: rgba(110, 86, 207, 0.9);
+            border: 1px solid var(--glass-border);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            background: rgba(0, 200, 83, 0.9);
+        }
+        .toast.error {
+            background: rgba(255, 23, 68, 0.9);
+        }
+        .toast.warning {
+            background: rgba(255, 171, 0, 0.9);
+            color: #333;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            background: var(--card-light);
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            background: rgba(36, 36, 61, 0.5);
+        }
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(110, 86, 207, 0.3);
+        }
+        .action-btn:active {
+            transform: translateY(0);
+        }
+        .download-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            padding: 8px 14px;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .image-item:hover .download-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .download-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px) scale(1.05);
+        }
+        .skeleton {
+            animation: skeleton-loading 1.5s infinite ease-in-out;
+            background: linear-gradient(90deg, rgba(36, 36, 61, 0.5), rgba(58, 58, 90, 0.5), rgba(36, 36, 61, 0.5));
+            background-size: 200% 100%;
+            border-radius: 12px;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        /* Floating particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(110, 86, 207, 0.3);
+            animation: float linear infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                border-radius: 20px;
+            }
+            
+            .header {
+                padding: 24px;
+            }
+            
+            .input-area {
+                padding: 24px;
+                gap: 20px;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            #prompt {
+                min-height: 100px;
+                font-size: 15px;
+            }
+            
+            .action-btn {
+                padding: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .input-area {
+                padding: 20px;
+                gap: 16px;
+            }
+            
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles background -->
+    <div class="particles" id="particles"></div>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h1>Red-X AI</h1>
+            </div>
+            <p>Transform your imagination into stunning AI-generated art with our powerful image generator</p>
+        </div>
+        <div class="input-area">
+            <div class="prompt-container">
+                <textarea id="prompt" placeholder="Describe your vision... (e.g. 'A futuristic cityscape at night with neon lights reflecting on wet streets, cyberpunk style')" rows="5" maxlength="2500"></textarea>
+                <div class="prompt-counter"><span id="char-count">0</span>/2500</div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label><i class="fas fa-layer-group"></i> Image Count</label>
+                    <select id="image-count">
+                        <option value="1">1 Image</option>
+                        <option value="2" selected>2 Images</option>
+                        <option value="4">4 Images</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label><i class="fas fa-expand"></i> Image Size</label>
+                    <select id="image-size">
+                        <option value="square">Square (1:1)</option>
+                        <option value="portrait">Portrait (3:4)</option>
+                        <option value="landscape">Landscape (4:3)</option>
+                        <option value="wide">Widescreen (16:9)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="controls">
+                <div class="control-group">
+                    <label><i class="fas fa-paint-brush"></i> Style</label>
+                    <select id="image-style">
+                        <option value="realistic">Realistic</option>
+                        <option value="anime" selected>Anime</option>
+                        <option value="fantasy">Fantasy</option>
+                        <option value="cyberpunk">Cyberpunk</option>
+                        <option value="watercolor">Watercolor</option>
+                        <option value="oil_painting">Oil Painting</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label><i class="fas fa-star"></i> Quality</label>
+                    <select id="image-quality">
+                        <option value="standard">Standard</option>
+                        <option value="high" selected>High</option>
+                        <option value="ultra">Ultra HD</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="generate-btn" class="generate-btn">
+                <i class="fas fa-magic"></i> Generate AI Art
+            </button>
+        </div>
+        <div class="progress-container" id="progress-container">
+            <div class="progress-info">
+                <span id="progress-status" aria-live="polite">Initializing AI model...</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+        <div class="image-container" id="image-container">
+            <div class="image-grid" id="image-grid"></div>
+            <div class="action-buttons" id="action-buttons" style="display: none;">
+                <button class="action-btn" id="download-all-btn">
+                    <i class="fas fa-download"></i> Download All
+                </button>
+                <button class="action-btn" id="regenerate-btn">
+                    <i class="fas fa-sync-alt"></i> Regenerate
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Image generated successfully!</span>
+    </div>
+    <script>
+        // Performance optimization - cache DOM elements
+        const dom = {
+            prompt: document.getElementById("prompt"),
+            charCount: document.getElementById("char-count"),
+            generateBtn: document.getElementById("generate-btn"),
+            progressContainer: document.getElementById("progress-container"),
+            progressFill: document.getElementById("progress-fill"),
+            progressStatus: document.getElementById("progress-status"),
+            progressPercent: document.getElementById("progress-percent"),
+            imageContainer: document.getElementById("image-container"),
+            imageGrid: document.getElementById("image-grid"),
+            actionButtons: document.getElementById("action-buttons"),
+            toast: document.getElementById("toast"),
+            toastMessage: document.getElementById("toast-message"),
+            imageCount: document.getElementById("image-count"),
+            imageSize: document.getElementById("image-size"),
+            imageStyle: document.getElementById("image-style"),
+            downloadAllBtn: document.getElementById("download-all-btn"),
+            regenerateBtn: document.getElementById("regenerate-btn"),
+            particles: document.getElementById("particles")
+        };
+        // State management
+        const state = {
+            currentPollInterval: null,
+            currentInitialProgressInterval: null,
+            activeRequests: [],
+            isGenerating: false,
+            currentImages: []
+        };
+        // Create floating particles
+        function createParticles() {
+            const count = Math.floor(window.innerWidth / 20);
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const size = Math.random() * 5 + 2;
+                const posX = Math.random() * window.innerWidth;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * -20;
+                const opacity = Math.random() * 0.4 + 0.1;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}px`;
+                particle.style.bottom = `-${size}px`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.opacity = opacity;
+                
+                dom.particles.appendChild(particle);
+            }
+        }
+        // Initialize the app
+        function init() {
+            createParticles();
+            
+            // Character counter for prompt
+            dom.prompt.addEventListener("input", () => {
+                dom.charCount.textContent = dom.prompt.value.length;
+            });
+            
+            // Generate on Enter (without Shift)
+            dom.prompt.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleGenerateClick();
+                }
+            });
+            // Button event listeners
+            dom.generateBtn.addEventListener("click", debounce(handleGenerateClick, 300));
+            dom.regenerateBtn.addEventListener("click", debounce(handleGenerateClick, 300));
+            dom.downloadAllBtn.addEventListener("click", debounce(downloadAllImages, 300));
+        }
+        // Debounce function for performance
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+        async function handleGenerateClick() {
+            if (state.isGenerating) return;
+            state.isGenerating = true;
+            
+            const prompt = dom.prompt.value.trim();
+            if (!prompt) {
+                showToast("Please enter a prompt", "error");
+                state.isGenerating = false;
+                return;
+            }
+            
+            // Disable button during verification
+            dom.generateBtn.disabled = true;
+            dom.generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            
+            // Clear any existing intervals and requests
+            cleanup();
+            
+            // Execute reCAPTCHA
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6Ld4nRwrAAAAAP6dhNFTDsLr3ARMgDfamlXHwn1v', {action: 'generate'})
+                    .then(token => generateImage(token))
+                    .catch(error => {
+                        console.error("reCAPTCHA error:", error);
+                        showToast("Verification failed. Please try again.", "error");
+                        resetGenerateButton();
+                        state.isGenerating = false;
+                    });
+            });
+        }
+        function showToast(message, type = "success") {
+            const icon = dom.toast.querySelector('i');
+            
+            // Set icon based on type
+            icon.className = type === "error" ? "fas fa-exclamation-circle" : 
+                            type === "warning" ? "fas fa-exclamation-triangle" : 
+                            "fas fa-check-circle";
+            
+            dom.toastMessage.textContent = message;
+            dom.toast.className = `toast show ${type}`;
+            
+            setTimeout(() => {
+                dom.toast.classList.remove('show');
+            }, 3000);
+        }
+        function getImageDimensions(size) {
+            // Smaller dimensions for faster generation in demo
+            switch(size) {
+                case 'portrait': return { width: 512, height: 682 };
+                case 'landscape': return { width: 682, height: 512 };
+                case 'wide': return { width: 853, height: 480 };
+                default: return { width: 512, height: 512 };
+            }
+        }
+        function getAspectRatioClass(size) {
+            switch(size) {
+                case 'portrait': return 'portrait-frame';
+                case 'landscape': return 'landscape-frame';
+                case 'wide': return 'wide-frame';
+                default: return 'square-frame';
+            }
+        }
+        async function downloadImage(url, index) {
+            try {
+                // Show loading state
+                showToast(`Preparing download for image ${index + 1}...`, 'warning');
+                
+                // First check if the URL is valid and returns an image
+                const headResponse = await fetch(url, { method: 'HEAD' });
+                if (!headResponse.ok) {
+                    throw new Error('Image not available');
+                }
+                
+                const contentType = headResponse.headers.get('content-type');
+                if (!contentType || !contentType.startsWith('image/')) {
+                    throw new Error('Invalid image content');
+                }
+                
+                const filename = `ai-art-${Date.now()}-${index + 1}.jpg`;
+                
+                // Now fetch the actual image
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // Create download link
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Cleanup
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobUrl);
+                }, 100);
+                
+                showToast(`Downloaded image ${index + 1}!`);
+            } catch (error) {
+                console.error('Download error:', error);
+                showToast('Failed to download image. It may violate content policy.', 'error');
+            }
+        }
+        function downloadAllImages() {
+            if (state.currentImages.length === 0) {
+                showToast("No images to download", "error");
+                return;
+            }
+            
+            showToast(`Starting download of ${state.currentImages.length} images...`, "warning");
+            
+            state.currentImages.forEach((url, index) => {
+                setTimeout(() => {
+                    downloadImage(url, index);
+                }, index * 500); // Stagger downloads
+            });
+        }
+        function setupImageGrid(imageCount, aspectRatioClass) {
+            dom.imageGrid.innerHTML = '';
+            state.currentImages = [];
+            
+            // Create skeleton loaders first for perceived performance
+            for (let i = 0; i < imageCount; i++) {
+                const imageItem = document.createElement('div');
+                imageItem.className = `image-item ${aspectRatioClass} skeleton`;
+                dom.imageGrid.appendChild(imageItem);
+            }
+            
+            // Then replace with actual loaders after a small delay
+            setTimeout(() => {
+                dom.imageGrid.innerHTML = '';
+                for (let i = 0; i < imageCount; i++) {
+                    const imageItem = document.createElement('div');
+                    imageItem.className = `image-item ${aspectRatioClass}`;
+                    imageItem.innerHTML = `
+                        <div class="loader" aria-label="Loading image ${i + 1}"></div>
+                        <img id="outputImage-${i}" alt="Generated image ${i + 1}" loading="lazy">
+                    `;
+                    dom.imageGrid.appendChild(imageItem);
+                }
+            }, 50);
+        }
+        async function generateImage(recaptchaToken) {
+            const prompt = dom.prompt.value.trim();
+            const imageCount = parseInt(dom.imageCount.value);
+            const imageSize = dom.imageSize.value;
+            const imageStyle = dom.imageStyle.value;
+            const dimensions = getImageDimensions(imageSize);
+            const aspectRatioClass = getAspectRatioClass(imageSize);
+            
+            // Show loading UI
+            setupImageGrid(imageCount, aspectRatioClass);
+            dom.progressContainer.style.display = 'block';
+            dom.imageContainer.style.display = 'block';
+            dom.actionButtons.style.display = 'none';
+            dom.progressFill.style.width = "0%";
+            dom.progressStatus.textContent = "Initializing AI model...";
+            dom.progressPercent.textContent = "0%";
+            
+            // Initial progress animation
+            let progress = 0;
+            state.currentInitialProgressInterval = setInterval(() => {
+                progress += 1;
+                dom.progressFill.style.width = `${progress}%`;
+                dom.progressPercent.textContent = `${progress}%`;
+                
+                if (progress >= 15) {
+                    clearInterval(state.currentInitialProgressInterval);
+                    dom.progressStatus.textContent = "Connecting to AI server...";
+                }
+            }, 30);
+            
+            // Generate a new session ID
+            const sessionID = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            
+            try {
+                // Step 1: Get Token with timeout
+                dom.progressStatus.textContent = "Authenticating...";
+                const loginController = new AbortController();
+                state.activeRequests.push(loginController);
+                
+                const loginRes = await fetchWithTimeout(
+                    "https://api.seaart.io/art-studio/v1/account/login",
+                    {
+                        method: "POST",
+                        headers: {
+                            "X-Device-ID": sessionID,
+                            "Content-Type": "application/json",
+                            "X-Recaptcha-Token": recaptchaToken
+                        },
+                        body: JSON.stringify({ type: 16 })
+                    },
+                    10000,
+                    loginController
+                );
+                
+                const loginData = await loginRes.json();
+                const token = loginData?.data?.token;
+                
+                if (!token) throw new Error("Failed to authenticate");
+                
+                // Update progress
+                dom.progressFill.style.width = "20%";
+                dom.progressPercent.textContent = "20%";
+                dom.progressStatus.textContent = "Preparing generation...";
+                
+                // Step 2: Start generation
+                const seed = Math.floor(1000000000 + Math.random() * 9000000000);
+                
+                // Enhance prompt with style
+                const stylePrompts = {
+                    realistic: "hyper realistic, 8k, detailed, photorealistic",
+                    anime: "anime style, vibrant colors, studio ghibli inspired",
+                    fantasy: "fantasy art, magical, ethereal, dreamlike",
+                    cyberpunk: "cyberpunk, neon lights, futuristic, sci-fi",
+                    watercolor: "watercolor painting, soft edges, artistic",
+                    oil_painting: "oil painting, brush strokes, classical art"
+                };
+                
+                const enhancedPrompt = `${prompt}, ${stylePrompts[imageStyle] || ""}`;
+                
+                const meta = {
+                    prompt: enhancedPrompt,
+                    seed,
+                    n_iter: imageCount,
+                    width: dimensions.width,
+                    height: dimensions.height,
+                    prompt_magic_mode: 1,
+                    init_images: [],
+                    denoising_strength: 0.7,
+                    aspect: `${dimensions.width}:${dimensions.height}`,
+                    visibility: 2,
+                    seed_mode: 1,
+                    isHomeTask: "yes"
+                };
+                
+                const genController = new AbortController();
+                state.activeRequests.push(genController);
+                
+                const genRes = await fetchWithTimeout(
+                    "https://api.seaart.io/art-studio/v1/generate/text-to-img",
+                    {
+                        method: "POST",
+                        headers: {
+                            "X-Device-ID": sessionID,
+                            "Token": token,
+                            "X-Device-OS": "android",
+                            "Content-Type": "application/json",
+                            "X-Recaptcha-Token": recaptchaToken
+                        },
+                        body: JSON.stringify({ meta, parent_task_id: "" })
+                    },
+                    15000,
+                    genController
+                );
+                
+                const genData = await genRes.json();
+                const taskId = genData?.data?.id;
+                if (!taskId) throw new Error("Failed to start generation");
+                
+                // Update progress
+                dom.progressFill.style.width = "40%";
+                dom.progressPercent.textContent = "40%";
+                dom.progressStatus.textContent = "Generating images...";
+                
+                // Step 3: Poll for progress
+                pollGenerationProgress(taskId, token, sessionID, imageCount, aspectRatioClass);
+                
+            } catch (error) {
+                console.error("Generation error:", error);
+                handleGenerationError(error.message || "Generation failed");
+            }
+        }
+        async function fetchWithTimeout(url, options, timeout, controller) {
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
+            }
+        }
+        function pollGenerationProgress(taskId, token, sessionID, imageCount, aspectRatioClass) {
+            state.currentPollInterval = setInterval(async () => {
+                try {
+                    const progressController = new AbortController();
+                    state.activeRequests.push(progressController);
+                    
+                    const progressRes = await fetchWithTimeout(
+                        "https://api.seaart.io/art-studio/v1/generate/progress",
+                        {
+                            method: "POST",
+                            headers: {
+                                "token": token,
+                                "x-device-id": sessionID,
+                                "content-type": "application/json"
+                            },
+                            body: JSON.stringify({ task_ids: [taskId] })
+                        },
+                        10000,
+                        progressController
+                    );
+                    
+                    const progressData = await progressRes.json();
+                    const items = progressData?.data?.items;
+                    
+                    if (items && items.length > 0) {
+                        const item = items[0];
+                        const percent = Math.min(40 + (item.process * 0.6), 99);
+                        dom.progressFill.style.width = `${percent}%`;
+                        dom.progressPercent.textContent = `${Math.floor(percent)}%`;
+                        
+                        if (item.process === 100 && item.components) {
+                            clearInterval(state.currentPollInterval);
+                            dom.progressFill.style.width = "100%";
+                            dom.progressPercent.textContent = "100%";
+                            dom.progressStatus.textContent = "Finalizing...";
+                            
+                            // Process the generated images
+                            processGeneratedImages(item.components, imageCount, aspectRatioClass);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Progress polling error:", error);
+                    clearInterval(state.currentPollInterval);
+                    handleGenerationError("Progress update failed");
+                }
+            }, 2000);
+        }
+        function processGeneratedImages(components, imageCount, aspectRatioClass) {
+            dom.progressContainer.style.display = 'none';
+            dom.actionButtons.style.display = 'flex';
+            resetGenerateButton();
+            state.isGenerating = false;
+            
+            // Clear the grid and create new items with proper aspect ratio
+            dom.imageGrid.innerHTML = '';
+            state.currentImages = [];
+            
+            components.forEach((component, index) => {
+                let imageUrl = component.url;
+                
+                // Ensure we're using a JPG URL (replace webm with jpg if needed)
+                if (imageUrl.toLowerCase().endsWith('.webm')) {
+                    imageUrl = imageUrl.replace(/\.webm$/i, '.jpg');
+                }
+                
+                // Store the image URL for download all functionality
+                state.currentImages.push(imageUrl);
+                
+                const imageItem = document.createElement('div');
+                imageItem.className = `image-item ${aspectRatioClass}`;
+                
+                const img = document.createElement('img');
+                img.alt = `Generated image ${index + 1}`;
+                img.loading = 'lazy';
+                img.style.display = 'block'; // Make sure image is visible
+                
+                // Create download button
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+                downloadBtn.dataset.index = index;
+                
+                // Add elements to the image item
+                imageItem.appendChild(img);
+                imageItem.appendChild(downloadBtn);
+                
+                // Add click handler for the download button
+                downloadBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    downloadImage(imageUrl, index);
+                });
+                
+                // Add the image item to the grid
+                dom.imageGrid.appendChild(imageItem);
+                
+                // Load the image after the element is in the DOM
+                img.onload = () => {
+                    img.style.opacity = 0;
+                    setTimeout(() => {
+                        img.style.transition = 'opacity 0.3s ease';
+                        img.style.opacity = 1;
+                    }, 10);
+                };
+                
+                img.onerror = () => {
+                    // If image fails to load (likely violates policy)
+                    img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100" fill="%23ff1744"><rect width="100" height="100"/><text x="50%" y="50%" font-family="Arial" font-size="10" fill="white" text-anchor="middle" dominant-baseline="middle">Content Violation</text></svg>';
+                    downloadBtn.disabled = true;
+                    downloadBtn.innerHTML = '<i class="fas fa-ban"></i> Blocked';
+                    downloadBtn.style.background = 'var(--error)';
+                };
+                
+                // Set the image source last to trigger loading
+                img.src = imageUrl;
+            });
+            
+            showToast("Images generated successfully!", "success");
+        }
+        function handleGenerationError(message = "Server busy, please try again") {
+            cleanup();
+            dom.progressFill.style.background = "var(--error)";
+            dom.progressStatus.textContent = "Error occurred";
+            showToast(message, "error");
+            dom.actionButtons.style.display = 'flex';
+            resetGenerateButton();
+            state.isGenerating = false;
+        }
+        function resetGenerateButton() {
+            dom.generateBtn.disabled = false;
+            dom.generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate AI Art';
+        }
+        function cleanup() {
+            if (state.currentPollInterval) clearInterval(state.currentPollInterval);
+            if (state.currentInitialProgressInterval) clearInterval(state.currentInitialProgressInterval);
+            
+            // Abort any active requests
+            state.activeRequests.forEach(controller => {
+                if (controller && !controller.signal.aborted) {
+                    controller.abort();
+                }
+            });
+            state.activeRequests = [];
+        }
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

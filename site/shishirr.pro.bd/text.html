@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Repeater | SHISHIR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glow-color: #00f2ff;
+            --bg-dark: #0b0f19;
+            --gradient: linear-gradient(90deg, #ff79c6, #00f2ff);
+        }
+
+        body {
+            background-color: #1a1e29;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .container {
+            background-color: var(--bg-dark);
+            width: 350px;
+            padding: 40px 25px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 121, 198, 0.2);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: var(--glow-color);
+            font-size: 32px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px var(--glow-color);
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        textarea, input[type="number"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #00f2ff66;
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        textarea::placeholder, input::placeholder {
+            color: #888;
+        }
+
+        .options {
+            color: #fff;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: var(--gradient);
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .back-btn {
+            background: var(--gradient);
+            padding: 8px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 14px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        #output {
+            min-height: 80px;
+            max-height: 150px;
+            overflow-y: auto;
+            text-align: left;
+            border-color: #00f2ff66;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Text Repeater</h1>
+
+        <div class="input-group">
+            <textarea id="inputText" placeholder="Enter your text..." rows="3"></textarea>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="repeatCount" placeholder="Enter repeat count">
+        </div>
+
+        <div class="options">
+            <input type="checkbox" id="addNumbering">
+            <label for="addNumbering">Add numbering</label>
+        </div>
+
+        <button class="btn" onclick="repeatText()">Repeat</button>
+
+        <div class="input-group">
+            <textarea id="output" readonly placeholder="Output will appear here..."></textarea>
+        </div>
+
+        <button class="btn" onclick="copyText()">Copy Text</button>
+
+        <a href="index.html" class="back-btn">Back</a>
+    </div>
+
+    <script>
+        function repeatText() {
+            const text = document.getElementById('inputText').value;
+            const count = parseInt(document.getElementById('repeatCount').value);
+            const numbering = document.getElementById('addNumbering').checked;
+            let result = '';
+
+            if(!text || isNaN(count)) {
+                alert("Please enter text and count!");
+                return;
+            }
+
+            for (let i = 1; i <= count; i++) {
+                if (numbering) {
+                    result += i + ". " + text + "\n";
+                } else {
+                    result += text + "\n";
+                }
+            }
+            document.getElementById('output').value = result;
+        }
+
+        function copyText() {
+            const output = document.getElementById('output');
+            if (!output.value) return;
+            output.select();
+            document.execCommand('copy');
+            alert("Text Copied!");
+        }
+    </script>
+</body>
+</html>

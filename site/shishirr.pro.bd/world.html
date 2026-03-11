@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>আল্ট্রা রিয়ালিস্টিক 3D পৃথিবী সিমুলেশন ✨</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <style>
+        :root {
+            --panel-bg: rgba(25, 30, 50, 0.75);
+            --panel-blur: 10px;
+            --accent-color: #00c6ff;
+            --accent-glow: rgba(0, 198, 255, 0.5);
+            --text-color: #f0f0f0;
+            --icon-color: #b0c0e0;
+            --icon-hover-color: #ffffff;
+            --border-radius: 10px;
+            --border-color: rgba(255, 255, 255, 0.15);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --error-color: #ff4d4d;
+            --success-color: #4dff88;
+            --highlight-color: rgba(255, 80, 80, 0.8); /* অনুসন্ধান হাইলাইটের জন্য রং */
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000; /* ব্যাকগ্রাউন্ড কালো থাকবে, কণা দেখা যাবে */
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            /* নিশ্চিত করুন যে ক্যানভাস ইন্টারেক্টিভ */
+            pointer-events: auto;
+        }
+
+        /* লোডিং ওভারলে */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 10, 0.95); display: flex; justify-content: center; align-items: center; color: white; font-size: 1.2em; z-index: 100; transition: opacity 0.6s ease-out, visibility 0.6s; flex-direction: column; gap: 20px; opacity: 1; visibility: visible;
+        }
+        #loading-overlay i { font-size: 2.5em; color: var(--accent-color); text-shadow: 0 0 15px var(--accent-glow); animation: pulse-spin 2.5s infinite ease-in-out; }
+        @keyframes pulse-spin { 0% { transform: scale(1) rotate(0deg); opacity: 0.8; } 50% { transform: scale(1.1) rotate(180deg); opacity: 1; } 100% { transform: scale(1) rotate(360deg); opacity: 0.8; } }
+        #loading-progress { font-size: 0.8em; color: var(--icon-color); }
+        #loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        /* UI ধারক এবং কন্ট্রোলস */
+        #ui-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; } /* এই ধারক নিজেই ইন্টারেক্টিভ নয় */
+        #controls {
+            position: absolute; top: 15px; left: 15px; background: var(--panel-bg); backdrop-filter: blur(var(--panel-blur)); -webkit-backdrop-filter: blur(var(--panel-blur)); padding: 10px 15px; border-radius: var(--border-radius); box-shadow: 0 5px 20px var(--shadow-color); display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-color);
+            pointer-events: auto; /* কন্ট্রোলস ইন্টারেক্টিভ */
+            max-width: calc(100% - 30px);
+        }
+        #search-container { display: flex; align-items: center; gap: 8px; flex-grow: 1; min-width: 0; }
+        #country-search {
+            min-width: 100px; flex-grow: 1; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.4); color: var(--text-color); border-radius: 6px; font-size: 0.9em; outline: none; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        #country-search:focus { border-color: var(--accent-color); box-shadow: 0 0 8px var(--accent-glow); }
+        #country-search::placeholder { color: #8a9ac0; opacity: 0.7; }
+        .control-buttons { display: flex; gap: 5px; flex-shrink: 0; }
+        .icon-button {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid transparent; color: var(--icon-color); font-size: 1.1em; width: 36px; height: 36px; border-radius: 6px; cursor: pointer; transition: background-color 0.2s, color 0.2s, transform 0.2s, border-color 0.2s, box-shadow 0.2s; display: flex; justify-content: center; align-items: center; position: relative; outline: none; flex-shrink: 0;
+        }
+        .icon-button:hover { background-color: rgba(255, 255, 255, 0.2); color: var(--icon-hover-color); border-color: var(--border-color); transform: translateY(-1px); box-shadow: 0 0 8px var(--accent-glow); }
+        .icon-button:active { transform: translateY(0px) scale(0.95); background-color: rgba(0, 0, 0, 0.2); box-shadow: none; }
+        .icon-button::after { content: attr(aria-label); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) scale(0.8); background-color: rgba(0, 0, 0, 0.85); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75em; white-space: nowrap; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s, transform 0.2s; margin-bottom: 7px; pointer-events: none; z-index: 11; }
+        .icon-button:hover::after { opacity: 1; visibility: visible; transform: translateX(-50%) scale(1); }
+
+        /* লেবেল এবং মার্কার */
+        .country-label {
+            color: #fff; background: rgba(10, 15, 30, 0.8); backdrop-filter: blur(3px); padding: 6px 10px; border-radius: 6px; font-size: 12px; white-space: nowrap;
+            pointer-events: none; /* লেবেল ইন্টারেক্টিভ নয় */
+             user-select: none; text-shadow: 1px 1px 2px black; z-index: 1; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 2px 5px rgba(0,0,0,0.3); transform: translate(10px, -50%);
+        }
+        .location-marker {
+            width: 18px; height: 18px; background: radial-gradient(circle, rgba(255,255,255,1) 0%, var(--accent-color) 60%); border-radius: 50%; border: none; box-shadow: 0 0 12px var(--accent-glow), 0 0 6px white, 0 0 20px var(--accent-glow) inset;
+            pointer-events: none; /* মার্কার ইন্টারেক্টিভ নয় */
+            user-select: none; animation: pulse-marker 1.8s infinite ease-in-out; transform: translate(-50%, -50%); transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+        }
+        @keyframes pulse-marker { 0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.7; } 50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; } }
+
+        /* স্থানাঙ্ক প্রদর্শন */
+        #coords-display {
+            position: absolute; bottom: 15px; left: 15px; background: var(--panel-bg); backdrop-filter: blur(var(--panel-blur)); -webkit-backdrop-filter: blur(var(--panel-blur)); padding: 8px 15px; border-radius: var(--border-radius); font-size: 0.8em; color: var(--text-color); z-index: 5;
+            pointer-events: none; /* ডিসপ্লে ইন্টারেক্টিভ নয় */
+            border: 1px solid var(--border-color); box-shadow: 0 3px 15px var(--shadow-color); transition: opacity 0.3s; opacity: 0.95; max-width: calc(100% - 30px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* বিজ্ঞপ্তি এলাকা */
+        #notification-area { position: absolute; bottom: 15px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 20; pointer-events: none; }
+        .toast { background: rgba(30, 35, 60, 0.85); backdrop-filter: blur(8px); color: var(--text-color); padding: 10px 15px; border-radius: 6px; font-size: 0.9em; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); opacity: 0; transform: translateX(100%); transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            pointer-events: auto; /* টোস্ট ইন্টারেক্টিভ হতে পারে (যদি প্রয়োজন হয়) */
+            max-width: 300px; word-wrap: break-word; }
+        .toast.show { opacity: 1; transform: translateX(0); }
+        .toast.error { border-left: 4px solid var(--error-color); background: rgba(60, 30, 30, 0.85); }
+        .toast.success { border-left: 4px solid var(--success-color); background: rgba(30, 60, 40, 0.85); }
+        .toast.info { border-left: 4px solid var(--accent-color); background: rgba(30, 35, 60, 0.85); }
+
+        /* CSS2D রেন্ডারার */
+        #css2d-renderer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 2; } /* এটি নিজেই ইন্টারেক্টিভ নয়, এর শিশুরাও (লেবেল/মার্কার) নয় */
+
+        /* রোটেশন আইকন */
+        #rotation-icon.spinning { animation: spin 2s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* মোবাইল সামঞ্জস্য */
+        @media (max-width: 600px) {
+            #controls { top: 10px; left: 10px; right: 10px; flex-wrap: wrap; gap: 8px; padding: 10px; }
+            #search-container { width: calc(100% - 130px); min-width: 150px; }
+            .control-buttons { justify-content: flex-end; gap: 6px; }
+            .icon-button { font-size: 1.2em; width: 40px; height: 40px; }
+            .icon-button::after { display: none; }
+            #coords-display { bottom: 10px; left: 10px; right: 10px; text-align: center; font-size: 0.75em; padding: 6px 10px; border-radius: 6px; z-index: 5; }
+            .country-label { font-size: 11px; padding: 4px 8px; }
+            .location-marker { width: 16px; height: 16px; }
+            #notification-area { bottom: 65px; left: 10px; right: 10px; align-items: center; z-index: 20; }
+            .toast { width: calc(100% - 20px); max-width: 350px; }
+        }
+        @media (max-width: 420px) {
+             #search-container { width: 100%; margin-bottom: 8px; }
+             .control-buttons { width: 100%; justify-content: space-around; }
+             #country-search { padding: 7px 10px; font-size: 0.85em;}
+             .icon-button { width: 38px; height: 38px; font-size: 1.1em; }
+             #coords-display { font-size: 0.7em; }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="loading-overlay">
+        <i class="fa-solid fa-satellite-dish"></i>
+        <span id="loading-status">সংযুক্ত হচ্ছে...</span>
+        <span id="loading-progress"></span>
+    </div>
+
+    <div id="ui-container">
+        <div id="controls">
+            <div id="search-container">
+                <input type="text" id="country-search" placeholder="দেশ খুঁজুন (যেমন ভারত, USA)...">
+                <button class="icon-button" onclick="searchCountry()" aria-label="অনুসন্ধান">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="control-buttons">
+                <button class="icon-button" onclick="toggleRotation()" aria-label="ঘূর্ণন চালু/বন্ধ">
+                    <i id="rotation-icon" class="fas fa-sync-alt"></i>
+                </button>
+                <button class="icon-button" onclick="resetView()" aria-label="ভিউ রিসেট করুন">
+                    <i class="fas fa-home"></i>
+                </button>
+                 <button id="night-light-button" class="icon-button" onclick="toggleNightLights()" aria-label="রাতের আলো চালু/বন্ধ">
+                    <i class="fas fa-lightbulb"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="coords-display">পৃথিবী লোড হচ্ছে...</div>
+
+        <div id="notification-area"></div>
+    </div>
+
+    <div id="css2d-renderer"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.134.0/examples/js/renderers/CSS2DRenderer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+
+    <script>
+        // --- কনফিগারেশন এবং ধ্রুবক ---
+        const EARTH_RADIUS = 5;
+        const MOON_DISTANCE = 18;
+        const EARTH_TILT_DEG = 23.5;
+        const ROTATION_SPEED = 0.0008;
+        const CLOUD_ROTATION_OFFSET = 0.0001;
+        const MOON_ORBIT_SPEED = 0.001;
+        const STAR_ROTATION_SPEED = -0.00005; // যদি কণা ঘোরানোর প্রয়োজন হয়
+        const CAMERA_FOV = 55;
+        const CAMERA_NEAR = 0.1;
+        const CAMERA_FAR = 2000;
+        const CAMERA_INITIAL_POS = new THREE.Vector3(0, 9, 16);
+        const CAMERA_MIN_DISTANCE_FACTOR = 1.3;
+        const CAMERA_MAX_DISTANCE_FACTOR = 40;
+        const MARKER_OFFSET_FACTOR = 1.005;
+        const LABEL_OFFSET_FACTOR = 1.03;
+        const FLY_TO_DURATION = 1.6;
+        const TOAST_DURATION = 3000;
+        // const STAR_TEXTURE_URL = '...'; // এখন প্রয়োজন নেই
+        const HIGHLIGHT_RING_RADIUS = 0.35;
+        const HIGHLIGHT_RING_OFFSET = 1.002;
+        const PARTICLE_COUNT = 15000; // কণার সংখ্যা
+        const PARTICLE_RADIUS = CAMERA_FAR * 0.7; // কণার বিস্তারের ব্যাসার্ধ
+
+        // --- গ্লোবাল ভেরিয়েবল ---
+        let scene, camera, renderer, controls, labelRenderer;
+        let earthSystem, earth, clouds, atmosphere, moon, sunLight; // stars সরানো হয়েছে
+        let particleSystem; // পার্টিকল সিস্টেমের জন্য
+        let rotateEarth = true;
+        let showNightLights = true;
+        let currentCountryLabel = null;
+        let currentLocationMarker = null;
+        let currentHighlightRing = null;
+        let raycaster, pointer;
+        let moonOrbitAngle = 0;
+        const EARTH_TILT_RAD = EARTH_TILT_DEG * (Math.PI / 180);
+        let textureLoader;
+
+        // --- DOM এলিমেন্ট ---
+        let loadingOverlay, loadingStatus, loadingProgress, coordsDisplay, notificationArea, nightLightButtonIcon, rotationIcon;
+
+        // --- দেশ ডেটা (সম্প্রসারিত এবং আপডেট করা হয়েছে) ---
+        const countryData = [
+            // *** এখানে পরিবর্তন করা হলো: ইন্ডিয়ার bn_name কে "BLUE" করা হয়েছে ***
+            { name: "India", lat: 20.5937, lon: 78.9629, hi_name: "संयुक्त राज्य अमेरिका", bn_name: "BLUE" },
+            // ********************************************************************
+            { name: "USA", lat: 38.9637, lon: -95.7129, hi_name: "संयुक्त राज्य अमेरिका", bn_name: "মার্কিন যুক্তরাষ্ট্র" },
+            { name: "China", lat: 35.8617, lon: 104.1954, hi_name: "चीन", bn_name: "চীন" },
+            { name: "Brazil", lat: -14.2350, lon: -51.9253, hi_name: "ब्राज़ील", bn_name: "ব্রাজিল" },
+            { name: "Egypt", lat: 26.8206, lon: 30.8025, hi_name: "मिस्र", bn_name: "মিশর" },
+            { name: "Australia", lat: -25.2744, lon: 133.7751, hi_name: "ऑस्ट्रेलिया", bn_name: "অস্ট্রেলিয়া" },
+            { name: "Russia", lat: 61.5240, lon: 105.3188, hi_name: "रूस", bn_name: "রাশিয়া" },
+            { name: "Japan", lat: 36.2048, lon: 138.2529, hi_name: "जापान", bn_name: "জাপান" },
+            { name: "Germany", lat: 51.1657, lon: 10.4515, hi_name: "जर्मनी", bn_name: "জার্মানি" },
+            { name: "South Africa", lat: -30.5595, lon: 22.9375, hi_name: "दक्षिण अफ्रीका", bn_name: "দক্ষিণ আফ্রিকা" },
+            { name: "Canada", lat: 56.1304, lon: -106.3468, hi_name: "कनाडा", bn_name: "কানাডা" },
+            { name: "United Kingdom", lat: 55.3781, lon: -3.4360, hi_name: "यूनाइटेड किंगडम", bn_name: "যুক্তরাজ্য" },
+            { name: "France", lat: 46.2276, lon: 2.2137, hi_name: "फ़्रान्स", bn_name: "ফ্রান্স" },
+            { name: "Mexico", lat: 23.6345, lon: -102.5528, hi_name: "मेक्सिको", bn_name: "মেক্সিকো" },
+            { name: "Argentina", lat: -38.4161, lon: -63.6167, hi_name: "अर्जेंटीना", bn_name: "আর্জেন্টিনা" },
+            { name: "Nigeria", lat: 9.0820, lon: 8.6753, hi_name: "नाइजीरिया", bn_name: "নাইজেরিয়া" },
+            { name: "Saudi Arabia", lat: 23.8859, lon: 45.0792, hi_name: "सऊदी अरब", bn_name: "সৌদি আরব" },
+            { name: "Indonesia", lat: -0.7893, lon: 113.9213, hi_name: "इंडोनेशिया", bn_name: "ইন্দোনেশিয়া" },
+            { name: "Pakistan", lat: 30.3753, lon: 69.3451, hi_name: "पाकिस्तान", bn_name: "পাকিস্তান" },
+            { name: "Turkey", lat: 38.9637, lon: 35.2433, hi_name: "तुर्की", bn_name: "তুরস্ক" },
+            { name: "Italy", lat: 41.8719, lon: 12.5674, hi_name: "इटली", bn_name: "ইতলি" },
+            { name: "Spain", lat: 40.4637, lon: -3.7492, hi_name: "स्पेन", bn_name: "স্পেন" },
+            { name: "Iran", lat: 32.4279, lon: 53.6880, hi_name: "ईरान", bn_name: "ইরান" },
+            { name: "Thailand", lat: 15.8700, lon: 100.9925, hi_name: "थाईलैंड", bn_name: "থাইল্যান্ড" },
+            { name: "Vietnam", lat: 14.0583, lon: 108.2772, hi_name: "ভিয়েতনাম", bn_name: "ভিয়েতনাম" },
+            { name: "Peru", lat: -9.1900, lon: -75.0152, hi_name: "पेरू", bn_name: "পেরু" },
+            { name: "Chile", lat: -35.6751, lon: -71.5430, hi_name: "चिली", bn_name: "চিলি" },
+            { name: "Colombia", lat: 4.5709, lon: -74.2973, hi_name: "कोलंबिया", bn_name: "কলম্বিয়া" },
+            { name: "Kenya", lat: -0.0236, lon: 37.9062, hi_name: "केन्या", bn_name: "কেনিয়া" },
+            { name: "Sweden", lat: 60.1282, lon: 18.6435, hi_name: "स्वीडन", bn_name: "সুইডেন" },
+            { name: "Norway", lat: 60.4720, lon: 8.4689, hi_name: "नॉर्वे", bn_name: "নরওয়ে" },
+            { name: "Finland", lat: 61.9241, lon: 25.7482, hi_name: "फिनलैंड", bn_name: "ফিনল্যান্ড" },
+            { name: "New Zealand", lat: -40.9006, lon: 174.8860, hi_name: "न्यूजीलैंड", bn_name: "নিউজিল্যান্ড" },
+            { name: "Nepal", lat: 28.3949, lon: 84.1240, hi_name: "नेपाल", bn_name: "নেপাল" },
+            { name: "Afghanistan", lat: 33.9391, lon: 67.7100, hi_name: "अफ़ग़ानिस्तान", bn_name: "আফগানিস্তান" },
+            { name: "Bhutan", lat: 27.5142, lon: 90.4336, hi_name: "भूटान", bn_name: "ভুটান" },
+            { name: "Bangladesh", lat: 23.6850, lon: 90.3563, hi_name: "बांग्लादेश", bn_name: "বাংলাদেশ" },
+            { name: "Sri Lanka", lat: 7.8731, lon: 80.7718, hi_name: "श्रीलंका", bn_name: "শ্রীলঙ্কা" },
+            { name: "Myanmar", lat: 21.9162, lon: 95.9560, hi_name: "म्यांमार", bn_name: "মিয়ানমার" },
+             // ... আপনি প্রয়োজন অনুযায়ী আরও দেশ যোগ করতে পারেন
+        ];
+
+        // ==========================================================
+        // --- INITIALIZATION & SETUP ---
+        // ==========================================================
+
+        function init() {
+            loadingOverlay = document.getElementById('loading-overlay');
+            loadingStatus = document.getElementById('loading-status');
+            loadingProgress = document.getElementById('loading-progress');
+            coordsDisplay = document.getElementById('coords-display');
+            notificationArea = document.getElementById('notification-area');
+            nightLightButtonIcon = document.getElementById('night-light-button').querySelector('i');
+            rotationIcon = document.getElementById('rotation-icon');
+
+            updateUICues();
+            setupLoadingManager();
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(CAMERA_FOV, window.innerWidth / window.innerHeight, CAMERA_NEAR, CAMERA_FAR);
+            camera.position.copy(CAMERA_INITIAL_POS);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            labelRenderer = new THREE.CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.id = 'css2d-renderer';
+            document.body.appendChild(labelRenderer.domElement);
+
+            raycaster = new THREE.Raycaster();
+            pointer = new THREE.Vector2();
+
+            createWorld();
+            createParticleStars(); // পার্টিকল স্টার তৈরি করুন
+            setupLighting();
+            setupControls();
+            setupEventListeners();
+            animate();
+        }
+
+        function setupLoadingManager() {
+             const loadingManager = new THREE.LoadingManager(
+                 () => {
+                     loadingOverlay.classList.add('hidden');
+                     coordsDisplay.textContent = "পৃথিবীতে ক্লিক/ট্যাপ করুন অথবা দেশ খুঁজুন";
+                     loadingOverlay.addEventListener('transitionend', () => {
+                        if (loadingOverlay.parentNode) {
+                            loadingOverlay.parentNode.removeChild(loadingOverlay);
+                        }
+                     }, { once: true });
+                 },
+                 (url, itemsLoaded, itemsTotal) => {
+                     const progress = Math.round((itemsLoaded / itemsTotal) * 100);
+                     loadingStatus.textContent = `অ্যাসেট লোড হচ্ছে... (${itemsLoaded}/${itemsTotal})`;
+                     loadingProgress.textContent = `${progress}%`;
+                 },
+                 (url) => {
+                     console.error(`অ্যাসেট লোড করতে সমস্যা: ${url}`);
+                     loadingStatus.innerHTML = `❌ ত্রুটি!`;
+                     const filename = url.substring(url.lastIndexOf('/')+1);
+                     loadingProgress.textContent = `${filename} লোড করা যায়নি।`;
+                 }
+             );
+             textureLoader = new THREE.TextureLoader(loadingManager);
+        }
+
+        function createWorld() {
+             earthSystem = new THREE.Group();
+             earthSystem.rotation.z = -EARTH_TILT_RAD;
+             scene.add(earthSystem);
+
+             const earthMat = new THREE.MeshPhongMaterial({
+                 map: textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg'),
+                 specularMap: textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg'),
+                 normalMap: textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg'),
+                 normalScale: new THREE.Vector2(0.7, 0.7),
+                 emissiveMap: textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_lights_2048.jpg'),
+                 emissive: 0xffffff, emissiveIntensity: showNightLights ? 1.0 : 0.0,
+                 shininess: 15, specular: 0x222222 });
+             earth = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS, 64, 64), earthMat);
+             earthSystem.add(earth);
+
+             const cloudMat = new THREE.MeshPhongMaterial({
+                 map: textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_2048.jpg'),
+                 transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false });
+             clouds = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS + 0.03, 64, 64), cloudMat);
+             earthSystem.add(clouds);
+
+             const atmosphereMat = new THREE.ShaderMaterial({
+                 uniforms: THREE.UniformsUtils.clone({ "c": { value: 0.4 }, "p": { value: 4.0 }, glowColor: { value: new THREE.Color(0x87ceeb) } }),
+                 vertexShader: `varying vec3 vNormal; void main() { vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+                 fragmentShader: `uniform float c; uniform float p; uniform vec3 glowColor; varying vec3 vNormal; void main() { float intensity = pow(c - dot(vNormal, vec3(0.0, 0.0, 1.0)), p); gl_FragColor = vec4(glowColor, 1.0) * intensity; gl_FragColor.a = intensity * 0.8; }`,
+                 side: THREE.BackSide, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
+             atmosphere = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS + 0.15, 64, 64), atmosphereMat);
+             earthSystem.add(atmosphere);
+
+             const moonMat = new THREE.MeshPhongMaterial({ map: textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg'), shininess: 2 });
+             moon = new THREE.Mesh(new THREE.SphereGeometry(EARTH_RADIUS * 0.27, 32, 32), moonMat);
+             scene.add(moon);
+
+             // পুরানো stars মেশ এখানে নেই
+        }
+
+        // নতুন ফাংশন: পার্টিকল স্টার তৈরি করতে
+        function createParticleStars() {
+            const particlesGeometry = new THREE.BufferGeometry();
+            const positions = [];
+            const colors = [];
+            const color = new THREE.Color();
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const radius = Math.random() * PARTICLE_RADIUS;
+                const phi = Math.acos(2 * Math.random() - 1);
+                const theta = Math.random() * Math.PI * 2;
+                const x = radius * Math.sin(phi) * Math.cos(theta);
+                const y = radius * Math.sin(phi) * Math.sin(theta);
+                const z = radius * Math.cos(phi);
+                positions.push(x, y, z);
+
+                const hue = Math.random() * 0.1 + (Math.random() > 0.5 ? 0.55 : 0.0);
+                const saturation = 0.5 + Math.random() * 0.3;
+                const lightness = 0.7 + Math.random() * 0.3;
+                color.setHSL(hue, saturation, lightness);
+                colors.push(color.r, color.g, color.b);
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            particlesGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.15,
+                vertexColors: true,
+                sizeAttenuation: true,
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+
+            particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particleSystem);
+        }
+
+
+        function setupLighting() {
+             scene.add(new THREE.AmbientLight(0xcccccc, 0.25));
+             sunLight = new THREE.DirectionalLight(0xffffff, 1.3);
+             sunLight.position.set(60, 20, 40);
+             scene.add(sunLight);
+        }
+
+        function setupControls() {
+             controls = new THREE.OrbitControls(camera, renderer.domElement);
+             controls.enableDamping = true;
+             controls.dampingFactor = 0.05;
+             controls.minDistance = EARTH_RADIUS * CAMERA_MIN_DISTANCE_FACTOR;
+             controls.maxDistance = EARTH_RADIUS * CAMERA_MAX_DISTANCE_FACTOR;
+             controls.enablePan = false;
+             controls.target.set(0, 0, 0);
+             controls.update();
+        }
+
+        function setupEventListeners() {
+             window.addEventListener('resize', onWindowResize);
+             document.getElementById('country-search').addEventListener('keyup', (event) => { if (event.key === "Enter") searchCountry(); });
+             renderer.domElement.addEventListener('pointerdown', onPointerDown, false);
+        }
+
+        // ==========================================================
+        // --- HELPERS & UTILITIES ---
+        // ==========================================================
+
+        function latLonToVector3(lat, lon, radius) {
+            const phi = (90 - lat) * (Math.PI / 180); const theta = (lon + 180) * (Math.PI / 180);
+            const x = -(radius * Math.sin(phi) * Math.cos(theta)); const z = radius * Math.sin(phi) * Math.sin(theta); const y = radius * Math.cos(phi);
+            return new THREE.Vector3(x, y, z);
+        }
+
+        function vector3ToLatLon(vector, radius) {
+            const R = vector.length(); if (R < 0.1) return { lat: 0, lon: 0 };
+            const phi = Math.acos(THREE.MathUtils.clamp(vector.y / R, -1, 1));
+            const theta = Math.atan2(vector.z, -vector.x);
+            let lat = 90 - (phi * 180 / Math.PI); let lon = (theta * 180 / Math.PI) - 180;
+            lon = ((lon + 180) % 360) - 180;
+            return { lat: lat, lon: lon };
+        }
+
+        function createHighlightRing(localPosition) {
+            removeHighlightRing();
+            const ringGeometry = new THREE.RingGeometry(HIGHLIGHT_RING_RADIUS - 0.02, HIGHLIGHT_RING_RADIUS, 64);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--highlight-color').trim() || '#FF5050'),
+                side: THREE.DoubleSide, transparent: true, opacity: 0.7, depthWrite: false
+            });
+            currentHighlightRing = new THREE.Mesh(ringGeometry, ringMaterial);
+            const position = localPosition.clone().multiplyScalar(HIGHLIGHT_RING_OFFSET);
+            currentHighlightRing.position.copy(position);
+            currentHighlightRing.lookAt(earth.position);
+            earth.add(currentHighlightRing);
+        }
+
+        function removeHighlightRing() {
+            if (currentHighlightRing) {
+                if (currentHighlightRing.parent) { currentHighlightRing.parent.remove(currentHighlightRing); }
+                currentHighlightRing.geometry.dispose();
+                currentHighlightRing.material.dispose();
+                currentHighlightRing = null;
+            }
+        }
+
+        function showLocationInfo(name, localPosition, isSearchResult = false) {
+            removeLocationInfo();
+            removeHighlightRing();
+
+            const markerDiv = document.createElement('div');
+            markerDiv.className = 'location-marker';
+            currentLocationMarker = new THREE.CSS2DObject(markerDiv);
+            currentLocationMarker.position.copy(localPosition.clone().multiplyScalar(MARKER_OFFSET_FACTOR));
+            earth.add(currentLocationMarker);
+
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'country-label';
+            // নিশ্চিত করুন যে নামটি "BLUE" বা অন্য যা প্রয়োজন তা প্রদর্শিত হচ্ছে
+            labelDiv.textContent = name;
+            currentCountryLabel = new THREE.CSS2DObject(labelDiv);
+            currentCountryLabel.position.copy(localPosition.clone().multiplyScalar(LABEL_OFFSET_FACTOR));
+            earth.add(currentCountryLabel);
+
+            if (isSearchResult) {
+                createHighlightRing(localPosition);
+            }
+        }
+
+        function removeLocationInfo() {
+             const removeCSS2D = (obj) => {
+                 if (obj && obj.parent) {
+                     obj.parent.remove(obj);
+                     if (obj.element.parentNode) { obj.element.parentNode.removeChild(obj.element); }
+                 }
+             };
+             removeCSS2D(currentCountryLabel);
+             removeCSS2D(currentLocationMarker);
+             currentCountryLabel = null;
+             currentLocationMarker = null;
+        }
+
+        function flyToTarget(targetPositionInWorld) {
+             const offsetDistance = EARTH_RADIUS * 1.8;
+             const targetNormal = targetPositionInWorld.clone().normalize();
+             const targetCameraPosition = targetPositionInWorld.clone().add(targetNormal.multiplyScalar(offsetDistance));
+             const targetControlsTarget = targetPositionInWorld.clone();
+             gsap.killTweensOf(camera.position); gsap.killTweensOf(controls.target);
+             gsap.to(camera.position, { duration: FLY_TO_DURATION, x: targetCameraPosition.x, y: targetCameraPosition.y, z: targetCameraPosition.z, ease: "power3.inOut" });
+             gsap.to(controls.target, { duration: FLY_TO_DURATION, x: targetControlsTarget.x, y: targetControlsTarget.y, z: targetControlsTarget.z, ease: "power3.inOut", onUpdate: () => controls.update() });
+        }
+
+        function showToast(message, type = 'info') {
+             const toast = document.createElement('div');
+             toast.className = `toast ${type}`;
+             toast.textContent = message;
+             notificationArea.appendChild(toast);
+             toast.offsetHeight;
+             toast.classList.add('show');
+             setTimeout(() => {
+                 toast.classList.remove('show');
+                 toast.addEventListener('transitionend', () => { if (toast.parentNode) { toast.parentNode.removeChild(toast); } }, { once: true });
+             }, TOAST_DURATION);
+        }
+
+        function updateUICues() {
+            if (nightLightButtonIcon) { nightLightButtonIcon.className = showNightLights ? "fas fa-lightbulb" : "far fa-lightbulb"; }
+            if (rotationIcon) { rotateEarth ? rotationIcon.classList.add('spinning') : rotationIcon.classList.remove('spinning'); }
+        }
+
+        // ==========================================================
+        // --- EVENT HANDLERS ---
+        // ==========================================================
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight); labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onPointerDown(event) {
+             const clientX = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : 0);
+             const clientY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : 0);
+
+             pointer.x = (clientX / window.innerWidth) * 2 - 1;
+             pointer.y = -(clientY / window.innerHeight) * 2 + 1;
+
+             raycaster.setFromCamera(pointer, camera);
+             const intersects = raycaster.intersectObject(earth);
+
+             if (intersects.length > 0) {
+                 const dragThreshold = 5;
+                 let startX = clientX;
+                 let startY = clientY;
+                 let isDragging = false;
+
+                 const onPointerMove = (moveEvent) => {
+                    const moveClientX = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0] ? moveEvent.touches[0].clientX : 0);
+                    const moveClientY = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0] ? moveEvent.touches[0].clientY : 0);
+                    const dx = Math.abs(moveClientX - startX);
+                    const dy = Math.abs(moveClientY - startY);
+                    if (dx > dragThreshold || dy > dragThreshold) {
+                        isDragging = true;
+                        renderer.domElement.removeEventListener('pointermove', onPointerMove);
+                        renderer.domElement.removeEventListener('pointerup', onPointerUp);
+                     }
+                 };
+
+                 const onPointerUp = () => {
+                     renderer.domElement.removeEventListener('pointermove', onPointerMove);
+                     renderer.domElement.removeEventListener('pointerup', onPointerUp);
+                     if (!isDragging) {
+                         const intersectionPointWorld = intersects[0].point;
+                         const localPoint = earth.worldToLocal(intersectionPointWorld.clone());
+                         const coords = vector3ToLatLon(localPoint, EARTH_RADIUS);
+                         removeLocationInfo();
+                         removeHighlightRing();
+                         const locationName = `(${coords.lat.toFixed(1)}°, ${coords.lon.toFixed(1)}°)`;
+                         showLocationInfo(locationName, localPoint, false);
+                         const coordsText = `অক্ষাংশ: ${coords.lat.toFixed(2)}°, দ্রাঘিমাংশ: ${coords.lon.toFixed(2)}°`;
+                         coordsDisplay.textContent = coordsText;
+                     }
+                 };
+
+                 renderer.domElement.addEventListener('pointermove', onPointerMove, false);
+                 renderer.domElement.addEventListener('pointerup', onPointerUp, false);
+             }
+        }
+
+
+        // ==========================================================
+        // --- ANIMATION LOOP ---
+        // ==========================================================
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.0001; // রং পরিবর্তন করার জন্য টাইম ফ্যাক্টর
+
+            if (rotateEarth) {
+                 earth.rotation.y += ROTATION_SPEED;
+                 clouds.rotation.y += ROTATION_SPEED + CLOUD_ROTATION_OFFSET;
+                 // চাইলে কণা সিস্টেমকেও ঘোরানো যেতে পারে
+                 // if (particleSystem) particleSystem.rotation.y += STAR_ROTATION_SPEED;
+            }
+
+            moonOrbitAngle += MOON_ORBIT_SPEED;
+            moon.position.x = MOON_DISTANCE * Math.cos(moonOrbitAngle);
+            moon.position.z = MOON_DISTANCE * Math.sin(moonOrbitAngle);
+            moon.rotation.y += 0.005;
+
+            // পার্টিকলের রং অ্যানিমেট করুন
+            if (particleSystem) {
+                const colorsAttribute = particleSystem.geometry.attributes.color;
+                const color = new THREE.Color();
+                const hsl = { h: 0, s: 0, l: 0 };
+
+                if (!particleSystem.userData.initialHues) {
+                     particleSystem.userData.initialHues = new Float32Array(PARTICLE_COUNT);
+                     for (let i = 0; i < PARTICLE_COUNT; i++) {
+                        color.setRGB(colorsAttribute.getX(i), colorsAttribute.getY(i), colorsAttribute.getZ(i));
+                        color.getHSL(hsl);
+                        particleSystem.userData.initialHues[i] = hsl.h;
+                    }
+                 }
+
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    color.setRGB(colorsAttribute.getX(i), colorsAttribute.getY(i), colorsAttribute.getZ(i));
+                    color.getHSL(hsl);
+                    const initialH = particleSystem.userData.initialHues[i];
+                    const newHue = (initialH + time * 0.05 + Math.sin(i * 0.1 + time * 5) * 0.02) % 1;
+                    color.setHSL(newHue, hsl.s, hsl.l);
+                    colorsAttribute.setXYZ(i, color.r, color.g, color.b);
+                }
+                colorsAttribute.needsUpdate = true;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+
+        // ==========================================================
+        // --- UI CONTROL FUNCTIONS ---
+        // ==========================================================
+
+        function toggleRotation() {
+            rotateEarth = !rotateEarth;
+            updateUICues();
+            showToast(rotateEarth ? "ঘূর্ণন চালু" : "ঘূর্ণন বন্ধ", 'info');
+        }
+
+        function resetView() {
+            gsap.killTweensOf(camera.position); gsap.killTweensOf(controls.target);
+            removeLocationInfo();
+            removeHighlightRing();
+            coordsDisplay.textContent = "পৃথিবীতে ক্লিক/ট্যাপ করুন অথবা দেশ খুঁজুন";
+            gsap.to(camera.position, { duration: FLY_TO_DURATION * 0.8, x: CAMERA_INITIAL_POS.x, y: CAMERA_INITIAL_POS.y, z: CAMERA_INITIAL_POS.z, ease: "power3.out" });
+            gsap.to(controls.target, { duration: FLY_TO_DURATION * 0.8, x: 0, y: 0, z: 0, ease: "power3.out", onUpdate: () => controls.update() });
+        }
+
+        function toggleNightLights() {
+            showNightLights = !showNightLights;
+            if (earth && earth.material) {
+                earth.material.emissiveIntensity = showNightLights ? 1.0 : 0.0;
+                earth.material.needsUpdate = true;
+            }
+            updateUICues();
+            showToast(showNightLights ? "রাতের আলো চালু" : "রাতের আলো বন্ধ", 'info');
+        }
+
+        function searchCountry() {
+            const input = document.getElementById('country-search');
+            const searchTerm = input.value.trim().toLowerCase();
+            input.value = '';
+            input.blur();
+            if (!searchTerm) return;
+            // অনুসন্ধানের জন্য নাম এবং বাংলা/হিন্দি নাম উভয়ই চেক করা হচ্ছে
+            const foundCountry = countryData.find(c => c.name.toLowerCase() === searchTerm || (c.hi_name && c.hi_name.toLowerCase() === searchTerm) || (c.bn_name && c.bn_name.toLowerCase() === searchTerm));
+            if (foundCountry) {
+                 const displayName = foundCountry.bn_name || foundCountry.name; // বাংলা নামকে অগ্রাধিকার দিন, যা এখন ইন্ডিয়ার জন্য "BLUE"
+                 const localPosition = latLonToVector3(foundCountry.lat, foundCountry.lon, EARTH_RADIUS);
+                 const worldPosition = earth.localToWorld(localPosition.clone());
+                 showLocationInfo(displayName, localPosition, true);
+                 flyToTarget(worldPosition);
+                 coordsDisplay.textContent = `${displayName} (${foundCountry.lat.toFixed(1)}°, ${foundCountry.lon.toFixed(1)}°)`;
+                 showToast(`দেশ পাওয়া গেল: ${displayName}`, 'success');
+            } else {
+                 showToast(`দেশ "${searchTerm}" পাওয়া যায়নি`, 'error');
+                 removeLocationInfo();
+                 removeHighlightRing();
+            }
+        }
+
+        // --- অ্যাপ্লিকেশন শুরু করুন ---
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+
+</body>
+</html>

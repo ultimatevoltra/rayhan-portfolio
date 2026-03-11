@@ -1,0 +1,9 @@
+{
+  "projectId": "8d5f8291-5eb5-4b68-9614-876a65790177",
+  "createdAt": 1773077499079,
+  "version": "1.0",
+  "startupCommands": [
+    "true; python3 -m http.server 4173 --directory site/shishirr.pro.bd"
+  ],
+  "templateId": "any"
+}

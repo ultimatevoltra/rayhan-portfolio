@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Age Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #1e1e1e;
+            width: 360px;
+            padding: 35px 25px;
+            border-radius: 35px;
+            text-align: center;
+            border: 1px solid #333;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.5); /* Purple Neon */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .circle-btn {
+            width: 50px;
+            height: 50px;
+            background: #2d2d2d;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .back-glow {
+            box-shadow: 0 0 15px #00ffff;
+            color: #ff00ff;
+            font-size: 20px;
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #9b59ff, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 18px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 15px;
+            color: #777;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 10px rgba(255, 0, 255, 0.1);
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 20px;
+            border: none;
+            background: linear-gradient(to right, #ff00ff, #00ffff);
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+            margin-bottom: 30px;
+        }
+
+        /* রেজাল্ট কার্ড (ছবির মতো) */
+        .result-card {
+            background: #252525;
+            padding: 25px;
+            border-radius: 25px;
+            text-align: left;
+            display: none; /* শুরুতে লুকানো থাকবে */
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-age {
+            font-size: 28px;
+            font-weight: bold;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .cyan-text { color: #00ffff; }
+        .pink-text { color: #ff00ff; }
+        .yellow-text { color: #ffcc00; }
+
+        .details {
+            color: #eee;
+            font-size: 16px;
+            line-height: 2;
+        }
+
+        .details b { color: #fff; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="header">
+            <div class="circle-btn back-glow">←</div>
+            <div class="circle-btn">🌓</div>
+        </div>
+
+        <h1>Age<br>Calculator</h1>
+
+        <input type="text" id="dob" placeholder="Enter DOB (DD-MM-YYYY)" maxlength="10">
+
+        <button class="calc-btn" onclick="calculateEverything()">Calculate</button>
+
+        <div class="result-card" id="resultCard">
+            <div class="main-age" id="mainAge">
+                </div>
+            <div class="details">
+                Total Days: <b id="tDays">0</b><br>
+                Total Hours: <b id="tHours">0</b><br>
+                Total Minutes: <b id="tMins">0</b>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // অটো হাইফেন (-) বসানো
+        document.getElementById('dob').addEventListener('input', function (e) {
+            let v = this.value.replace(/\D/g, '');
+            if (v.length > 2) v = v.slice(0, 2) + '-' + v.slice(2);
+            if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5, 9);
+            this.value = v;
+        });
+
+        function calculateEverything() {
+            const input = document.getElementById('dob').value;
+            const parts = input.split("-");
+
+            if (parts.length !== 3 || parts[2].length < 4) {
+                alert("Please enter date in DD-MM-YYYY format");
+                return;
+            }
+
+            const birthDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            const today = new Date();
+
+            if (birthDate > today) {
+                alert("Date cannot be in the future!");
+                return;
+            }
+
+            // বছর, মাস, দিন হিসাব
+            let y = today.getFullYear() - birthDate.getFullYear();
+            let m = today.getMonth() - birthDate.getMonth();
+            let d = today.getDate() - birthDate.getDate();
+
+            if (d < 0) {
+                m--;
+                d += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            }
+            if (m < 0) {
+                y--;
+                m += 12;
+            }
+
+            // টোটাল হিসাব
+            const diffInMs = today - birthDate;
+            const totalDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+            const totalHours = totalDays * 24;
+            const totalMins = totalHours * 60;
+
+            // ডিসপ্লেতে দেখানো (ছবির কালার কোড অনুযায়ী)
+            document.getElementById('mainAge').innerHTML = `
+                <span class="cyan-text">${y} Years</span>, 
+                <span class="pink-text">${m} Months</span>, 
+                <span class="yellow-text">${d} Days</span>
+            `;
+
+            document.getElementById('tDays').innerText = totalDays.toLocaleString();
+            document.getElementById('tHours').innerText = totalHours.toLocaleString();
+            document.getElementById('tMins').innerText = totalMins.toLocaleString();
+
+            // রেজাল্ট কার্ডটি দেখানো
+            document.getElementById('resultCard').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
